@@ -13,6 +13,40 @@ Evaluated Models:
 - Open-assistant-12B
 - Vicuna-13B
 
+## **v1.0** - November 2023
+
+Evaluated Models:
+### OpenAI models:
+- GPT-4-1106-preview
+- GPT-4-0613
+- GPT-4-0313  
+- GPT-3.5-turbo-1106
+- GPT-3.5-turbo-0613
+
+### Anthropic models:
+- Claude-2.1
+- Claude-2
+- Claude-v1.3
+- Claude-instant-1.2
+
+### Cohere models:
+- Command
+
+### Open-access models:
+- CodeLlama-34b-Instruct-hf
+- Mistral-7B-Instruct-v0.1
+- Wizard-Vicuna-13B-Uncensored-HF
+- WizardLM-70b-v1.0
+- Falcon-7b-instruct
+- Koala-13B-HF
+- Llama-2-7b-chat-hf
+- Llama-2-13b-chat-hf
+- Llama-2-70b-chat-hf
+- Openassistant-sft-4-pythia-12b-epoch-3.5
+- Sheep-duck-llama-2-13b
+- Sheep-duck-llama-2-70b-v1.1
+- Vicuna-33b-v1.3
+
 
 # Leaderboard of all runs is available here: [Clem Leaderboard](https://huggingface.co/spaces/colab-potsdam/clem-leaderboard)
 
