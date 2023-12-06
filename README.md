@@ -37,15 +37,21 @@ Evaluated Models:
 - Mistral-7B-Instruct-v0.1
 - Wizard-Vicuna-13B-Uncensored-HF
 - WizardLM-70b-v1.0
+- Yi-34B-Chat
 - Falcon-7b-instruct
 - Koala-13B-HF
 - Llama-2-7b-chat-hf
 - Llama-2-13b-chat-hf
 - Llama-2-70b-chat-hf
 - Openassistant-sft-4-pythia-12b-epoch-3.5
+- Openchat-3.5
 - Sheep-duck-llama-2-13b
 - Sheep-duck-llama-2-70b-v1.1
+- Vicuna-13b-v1.5
 - Vicuna-33b-v1.3
+- Vicuna-7b-v1.5
+- Zephyr-7b-alpha
+- Zephyr-7b-beta
 
 
 # Leaderboard of all runs is available here: [Clem Leaderboard](https://huggingface.co/spaces/colab-potsdam/clem-leaderboard)
@@ -55,7 +61,12 @@ Evaluated Models:
 Each game has a separate folder for each model result. The outputs are organised as follows: `game/model/experiment`. Each episode under a certain experiment includes the following files:
 
 
-- instance.json : info about a certain episode including the prompt text- interactions.json: interaction among players and game master- requests.json: given inputs and generated outputs for the tested model - scores.json: generated scores for the episode and turn level- transcript.html: transcript of the dialogue in HTML- transcript.tex: transcript of the dialogue in LaTeX
+- instance.json : info about a certain episode including the prompt text
+- interactions.json: interaction among players and game master
+- requests.json: given inputs and generated outputs for the tested model 
+- scores.json: generated scores for the episode and turn level
+- transcript.html: transcript of the dialogue in HTML
+- transcript.tex: transcript of the dialogue in LaTeX
 
 # Results files
 
