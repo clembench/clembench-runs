@@ -32,24 +32,28 @@ Evaluated Models:
 ### Cohere models:
 - Command
 
-### Open-access models:
+### Open-weight models:
 - CodeLlama-34b-Instruct-hf
-- Mistral-7B-Instruct-v0.1
-- Wizard-Vicuna-13B-Uncensored-HF
-- WizardLM-70b-v1.0
-- Yi-34B-Chat
+- deepseek-llm-67b-chat
 - Falcon-7b-instruct
 - Koala-13B-HF
 - Llama-2-7b-chat-hf
 - Llama-2-13b-chat-hf
 - Llama-2-70b-chat-hf
+- Mistral-7B-Instruct-v0.1
+- Mixtral-8x7B-Instruct-v0.1
 - Openassistant-sft-4-pythia-12b-epoch-3.5
 - Openchat-3.5
 - Sheep-duck-llama-2-13b
 - Sheep-duck-llama-2-70b-v1.1
+- tulu-2-dpo-70b
+- tulu-2-dpo-7b
 - Vicuna-13b-v1.5
 - Vicuna-33b-v1.3
 - Vicuna-7b-v1.5
+- Wizard-Vicuna-13B-Uncensored-HF
+- WizardLM-70b-v1.0
+- Yi-34B-Chat
 - Zephyr-7b-alpha
 - Zephyr-7b-beta
 
