@@ -1,5 +1,7 @@
 # Benchmark Runs
 
+# Leaderboard of all runs is available here: [Clem Leaderboard](https://huggingface.co/spaces/colab-potsdam/clem-leaderboard)
+
 ## **v0.9** - June 2023
 
 Evaluated Models:
@@ -56,9 +58,6 @@ Evaluated Models:
 - Yi-34B-Chat
 - Zephyr-7b-alpha
 - Zephyr-7b-beta
-
-
-# Leaderboard of all runs is available here: [Clem Leaderboard](https://huggingface.co/spaces/colab-potsdam/clem-leaderboard)
 
 # Game-play files
 
