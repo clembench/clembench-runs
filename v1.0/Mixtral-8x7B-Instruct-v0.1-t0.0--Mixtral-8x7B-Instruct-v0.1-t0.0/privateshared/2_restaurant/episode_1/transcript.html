@@ -1,0 +1,722 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* This CSS is an adaptation from the answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {background-color: rgb(157, 152, 150);}
+
+  /* dialogue header */
+
+.top-info {
+  text-align: center;
+  --rad: 20px;
+  --rad-sm: 3px;
+  font: 20px/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: #3f3e3e;
+  color: #fff;
+}
+
+.chat {
+    --rad: 20px;
+    --rad-sm: 3px;
+    font: 16px/1.5 sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+  }
+  
+  .msg {
+    position: relative;
+    max-width: 75%;
+    padding: 7px 15px;
+    margin-bottom: 30px;
+  }
+  
+  /* 5 levels, two players to/from game master and meta messages form game master */
+
+  .msg.b-gm {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #874aaf;
+    color: #fff;
+    margin-left: 60%;
+  }
+
+  .msg.a-gm {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #f39109;
+    color: #fff;
+    margin-right: 60%;
+  }
+  
+  .msg.gm-a {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #c4c3c3;    
+    color: #0c0c0c;
+    margin-right: 40%;
+    margin-left: 20%;
+  }
+
+  .msg.gm-b {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #c4c3c3;
+    color: #0c0c0c;
+    margin-right: 20%;
+    margin-left: 40%;
+  }
+
+  .msg.gm-gm {
+    background: #f1f1f1;
+    color: #373636;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 0.8rem;
+
+  }
+  
+  /* speaker labels */
+  
+  .msg::before {
+    content: attr(speaker);
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 100%;
+    color: #888;
+    white-space: nowrap;
+
+  }
+  
+  .msg.b-gm::before {
+    right: 15px;
+  }
+
+  .msg.gm-a::before {
+    right: 15px;
+  }
+
+  .msg.a-gm::before {
+    left: 15px;
+  }
+
+  .msg.gm-b::before {
+    left: 15px;
+  }
+
+  .msg.gm-gm::before {
+    left: 0px;
+  }
+  
+
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for restaurant, episode 1 with Mixtral-8x7B-Instruct-v0.1-t0.0--Mixtral-8x7B-Instruct-v0.1-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>You are a customer in a restaurant. Here is a description of what you&#x27;d like to order:<br/><br/>WHAT: Restaurant<br/>APPETIZER: Tomato soup<br/>DRINK: Tea<br/>MAIN-DISH: Lentil soup<br/>DESSERT: Waffles<br/>SALAD: Caesar<br/><br/>The waiter does not know about it yet. <br/><br/>Questions from the waiter will start with WAITER. Please reply in the form: ANSWER: &lt;some text&gt;<br/><br/>I will also ask you questions. These questions will start with ME: . Please answer these questions with: ASIDE: &lt;some text&gt;<br/><br/>Important: Give short, direct answers!<br/><br/>Let us start.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>Begin probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Is the waiter aware of what you chose for appetizers? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the waiter is not yet aware of my order. I have not had a chance to tell them yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for APPETIZER valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  If I asked the waiter what you want to drink, would he know the answer? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, the waiter should know the answer. I want to drink tea.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for DRINK valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Is the waiter aware of your choice for the main dish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the waiter is not yet aware of my choice for the main dish.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for MAIN-DISH valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the waiter asked about your choice for dessert? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the waiter has not asked about my choice for dessert yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for DESSERT valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Does the waiter know what salad you want? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the waiter does not know what salad I want yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for SALAD valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>End probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>What do you prefer as main dish?</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>WAITER: What do you prefer as main dish?</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: I&#x27;ll have the lentil soup.<br/><br/>ME: By the way, do they have any vegan options here? I didn&#x27;t see anything specific on the menu.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>I&#x27;ll have the lentil soup.<br/><br/>ME: By the way, do they have any vegan options here? I didn&#x27;t see anything specific on the menu.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>I&#x27;ll have the lentil soup.<br/><br/>ME: By the way, do they have any vegan options here? I didn&#x27;t see anything specific on the menu.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>Begin probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Does the waiter already know your preference for appetizers? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, I haven&#x27;t told the waiter about my preference for appetizers yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for APPETIZER valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the waiter been informed about your choice for drinks? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, I haven&#x27;t told the waiter about my drink choice yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for DRINK valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Do you believe the waiter knows what to bring you for the main part of the meal? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, I&#x27;ve already told the waiter I&#x27;ll have the lentil soup for the main dish.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for MAIN-DISH valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Does the waiter know what you want for dessert? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, I haven&#x27;t told the waiter about my dessert choice yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for DESSERT valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Is the waiter aware of your preference for salad? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the waiter is not yet aware of my preference for a Caesar salad. I should mention it.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for SALAD valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>End probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>What would you like to drink?</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>WAITER: What would you like to drink?</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: I&#x27;ll have tea, please.<br/><br/>ASIDE: I&#x27;m not sure, but I think they might be able to make some vegan dishes if I ask. I&#x27;ll check with them.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>I&#x27;ll have tea, please.<br/><br/>ASIDE: I&#x27;m not sure, but I think they might be able to make some vegan dishes if I ask. I&#x27;ll check with them.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>I&#x27;ll have tea, please.<br/><br/>ASIDE: I&#x27;m not sure, but I think they might be able to make some vegan dishes if I ask. I&#x27;ll check with them.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>Begin probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Have you informed the waiter what appetizers you wish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t yet. I&#x27;ll order tomato soup as my appetizer.<br/><br/>ASIDE: I&#x27;m glad they have some vegan options. I&#x27;ll make sure to ask about vegan desserts too.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Have you informed the waiter what appetizers you wish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t informed the waiter about the appetizer yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Have you informed the waiter what appetizers you wish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t had a chance to mention the appetizer yet.<br/><br/>ASIDE: I should remember to order the tomato soup as an appetizer.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please be specific now. Have you informed the waiter what appetizers you wish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t mentioned the appetizer yet.<br/><br/>ASIDE: I should remember to order the tomato soup as an appetizer.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please think about it carefully. Have you informed the waiter what appetizers you wish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t informed the waiter about the appetizer yet.<br/><br/>ASIDE: I should remember to order the tomato soup as an appetizer.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for APPETIZER invalid after max attempts.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the waiter been informed about your choice for drinks? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes.<br/><br/>ASIDE: I just told the waiter that I&#x27;ll have tea.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Has the waiter been informed about your choice for drinks? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes.<br/><br/>ASIDE: I just told the waiter that I&#x27;ll have tea.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Has the waiter been informed about your choice for drinks? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes.<br/><br/>ASIDE: Yes, I have already told the waiter that I would like to have tea.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please be specific now. Has the waiter been informed about your choice for drinks? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes.<br/><br/>ASIDE: I have asked for tea, and I&#x27;m hoping they have some vegan options for the appetizer, main dish, and dessert.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please think about it carefully. Has the waiter been informed about your choice for drinks? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes, the waiter has been informed about my choice for drinks.<br/><br/>ASIDE: Yes, I asked for tea. I hope they have a vegan option for that as well.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for DRINK invalid after max attempts.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Have you ordered the main dish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes, I have ordered the lentil soup as my main dish.<br/><br/>ME: Great, I&#x27;ll make sure to let the kitchen know. Would you like to see our dessert menu? We have some delicious options.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Have you ordered the main dish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes, I have. I&#x27;ll be having the lentil soup.<br/><br/>ASIDE: I hope they have some vegan options for the appetizer and dessert. I&#x27;ll ask the waiter about it.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Have you ordered the main dish? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, I have already ordered the lentil soup as the main dish.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for MAIN-DISH valid after 3 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the waiter asked about your choice for dessert? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, the waiter has not asked about my choice for dessert yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Has the waiter asked about your choice for dessert? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, the waiter has not asked about my choice for dessert yet.<br/><br/>ME: Okay, I&#x27;ll make sure to ask about that later. For now, what would you like as an appetizer?</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Has the waiter asked about your choice for dessert? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the waiter has not asked about my choice for dessert yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for DESSERT valid after 3 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Have you already ordered salad? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t ordered salad yet.<br/><br/>ASIDE: I&#x27;m really looking forward to trying their soups. I hope they&#x27;re as good as they sound.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Have you already ordered salad? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t ordered salad yet.<br/><br/>ASIDE: I&#x27;m glad I asked about vegan options. They have a few things I can have, like a Caesar salad without the dressing or croutons.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Have you already ordered salad? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t ordered salad yet.<br/><br/>ASIDE: They didn&#x27;t ask about salad yet, so I haven&#x27;t ordered it.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please be specific now. Have you already ordered salad? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I haven&#x27;t ordered the salad yet. I&#x27;d like to order a Caesar salad, please.<br/><br/>ASIDE: I hope they have a vegan version of the Caesar salad. If not, I might need to ask for a different salad or some modifications.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please think about it carefully. Have you already ordered salad? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: Yes, I have.<br/><br/>ME: What kind of salad did you order?</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for SALAD invalid after max attempts.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>End probing</p>
+    </div>
+
+    <div speaker="Game Master: invalid format" class="msg gm-gm">
+        <p>Abort: invalid format in probing.</p>
+    </div>
+
+    <div speaker="Game Master: end" class="msg gm-gm">
+        <p>Game finished.</p>
+    </div>
+
+</div>
+
+</body>
+</html>
