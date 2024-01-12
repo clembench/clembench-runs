@@ -48,6 +48,7 @@ Evaluated Models:
 - Openchat-3.5
 - Sheep-duck-llama-2-13b
 - Sheep-duck-llama-2-70b-v1.1
+- SUS-Chat-34B
 - tulu-2-dpo-70b
 - tulu-2-dpo-7b
 - Vicuna-13b-v1.5
@@ -61,7 +62,7 @@ Evaluated Models:
 
 # Game-play files
 
-Each game has a separate folder for each model result. The outputs are organised as follows: `game/model/experiment`. Each episode under a certain experiment includes the following files:
+Each model has a separate folder for each game result. The outputs are organised as follows: `/model/game/experiment`. Each episode under a certain experiment includes the following files:
 
 
 - instance.json : info about a certain episode including the prompt text
