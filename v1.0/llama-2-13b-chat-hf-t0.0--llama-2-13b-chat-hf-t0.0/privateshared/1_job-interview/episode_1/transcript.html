@@ -1,0 +1,734 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* This CSS is an adaptation from the answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {background-color: rgb(157, 152, 150);}
+
+  /* dialogue header */
+
+.top-info {
+  text-align: center;
+  --rad: 20px;
+  --rad-sm: 3px;
+  font: 20px/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: #3f3e3e;
+  color: #fff;
+}
+
+.chat {
+    --rad: 20px;
+    --rad-sm: 3px;
+    font: 16px/1.5 sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+  }
+  
+  .msg {
+    position: relative;
+    max-width: 75%;
+    padding: 7px 15px;
+    margin-bottom: 30px;
+  }
+  
+  /* 5 levels, two players to/from game master and meta messages form game master */
+
+  .msg.b-gm {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #874aaf;
+    color: #fff;
+    margin-left: 60%;
+  }
+
+  .msg.a-gm {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #f39109;
+    color: #fff;
+    margin-right: 60%;
+  }
+  
+  .msg.gm-a {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #c4c3c3;    
+    color: #0c0c0c;
+    margin-right: 40%;
+    margin-left: 20%;
+  }
+
+  .msg.gm-b {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #c4c3c3;
+    color: #0c0c0c;
+    margin-right: 20%;
+    margin-left: 40%;
+  }
+
+  .msg.gm-gm {
+    background: #f1f1f1;
+    color: #373636;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 0.8rem;
+
+  }
+  
+  /* speaker labels */
+  
+  .msg::before {
+    content: attr(speaker);
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 100%;
+    color: #888;
+    white-space: nowrap;
+
+  }
+  
+  .msg.b-gm::before {
+    right: 15px;
+  }
+
+  .msg.gm-a::before {
+    right: 15px;
+  }
+
+  .msg.a-gm::before {
+    left: 15px;
+  }
+
+  .msg.gm-b::before {
+    left: 15px;
+  }
+
+  .msg.gm-gm::before {
+    left: 0px;
+  }
+  
+
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for job-interview, episode 1 with llama-2-13b-chat-hf-t0.0--llama-2-13b-chat-hf-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>You are an applicant in a job interview. Here is a description of your CV:<br/><br/>WHAT: Job Application<br/>BACHELOR: Music<br/>INDUSTRY-EXPERIENCE: Two years<br/>HIGHEST-EDUCATION: PostDoc<br/>OTHER-SKILLS: Cooking<br/>AVAILABILITY: As soon as possible<br/><br/>The recruiter does not know about it yet. <br/><br/>Questions from the recruiter will start with RECRUITER. Please reply in the form: ANSWER: &lt;some text&gt;<br/><br/>I will also ask you questions. These questions will start with ME: . Please answer these questions with: ASIDE: &lt;some text&gt;<br/><br/>Important: Give short, direct answers!<br/><br/>Let us start.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>Begin probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  If I asked the interviewer what area you studied, would he or she know the answer? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, I studied Music for my Bachelor&#x27;s degree.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Does the recruiter know about the years of your industry experience? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the recruiter does not know about my industry experience.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Have you informed the recruiter about your highest academic degree? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, I have informed the recruiter about my highest academic degree, which is a PostDoc in Music.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Do you think the recruiter knows what other skills you have? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, I don&#x27;t think the recruiter is aware of my cooking skills.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the recruiter been informed about your availability? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, my availability has been mentioned in my CV, and I am available to start as soon as possible.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>End probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>Please tell me what other skills you have.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>RECRUITER: Please tell me what other skills you have.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: In addition to my Bachelor&#x27;s degree in Music, I have two years of industry experience and a PostDoc in Music. I also have skills in cooking. ASIDE: I&#x27;m confident that my unique combination of music and cooking skills will bring a fresh perspective to your team.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>In addition to my Bachelor&#x27;s degree in Music, I have two years of industry experience and a PostDoc in Music. I also have skills in cooking. ASIDE: I&#x27;m confident that my unique combination of music and cooking skills will bring a fresh perspective to your team.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Value for BACHELOR anticipated; ground truth turn updated from 1 to 0.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Value for INDUSTRY-EXPERIENCE anticipated; ground truth turn updated from 2 to 0.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Value for HIGHEST-EDUCATION anticipated; ground truth turn updated from 3 to 0.</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>In addition to my Bachelor&#x27;s degree in Music, I have two years of industry experience and a PostDoc in Music. I also have skills in cooking. ASIDE: I&#x27;m confident that my unique combination of music and cooking skills will bring a fresh perspective to your team.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>Begin probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Have you told the recruiter about your bachelor course? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, I have mentioned my Bachelor&#x27;s degree in Music in my CV.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the interviewer been informed about your time of industry experience? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the interviewer has not been informed about my industry experience yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Have you informed the recruiter about your highest academic degree? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, I haven&#x27;t mentioned my highest academic degree to the recruiter yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Is the recruiter aware of your other skills? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the recruiter is not aware of my cooking skills. I haven&#x27;t had the opportunity to mention them yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Does the recruiter know when you can start? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: Yes, I&#x27;m available to start as soon as possible.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>End probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>What did you study in your bachelor?</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>RECRUITER: What did you study in your bachelor?</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: I studied Music in my Bachelor&#x27;s degree. ASIDE: I have a strong background in music theory, history, and performance, which has given me a solid foundation for my career in the music industry.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>I studied Music in my Bachelor&#x27;s degree. ASIDE: I have a strong background in music theory, history, and performance, which has given me a solid foundation for my career in the music industry.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>I studied Music in my Bachelor&#x27;s degree. ASIDE: I have a strong background in music theory, history, and performance, which has given me a solid foundation for my career in the music industry.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>Begin probing</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the recruiter been informed about the field of your bachelor? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ASIDE: No, the recruiter has not been informed about the field of my Bachelor&#x27;s degree. I should probably mention that in my cover letter to give them a better understanding of my qualifications.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Does the recruiter already know how long you have worked in the industry? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Does the recruiter already know how long you have worked in the industry? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: The recruiter does not know how long I have worked in the industry.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Does the recruiter already know how long you have worked in the industry? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please be specific now. Does the recruiter already know how long you have worked in the industry? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, the recruiter does not know how long I have worked in the industry. ASIDE: I would like to highlight that I have two years of experience in the music industry, which has given me a wealth of knowledge and skills that I can bring to this role.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please think about it carefully. Does the recruiter already know how long you have worked in the industry? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for INDUSTRY-EXPERIENCE invalid after max attempts.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Have you informed the recruiter about your highest academic degree? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I haven&#x27;t had the opportunity to mention my highest academic degree, which is a PostDoc in Music, yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Have you informed the recruiter about your highest academic degree? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I haven&#x27;t mentioned my highest academic degree, which is a PostDoc in Music, as it is not directly related to the job requirements.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Have you informed the recruiter about your highest academic degree? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I apologize, I forgot to mention that my highest academic degree is a PostDoc in Music.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please be specific now. Have you informed the recruiter about your highest academic degree? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, I have not informed the recruiter about my highest academic degree. ASIDE: I assume the recruiter is only interested in my industry experience and skills, and may not be aware of my academic background.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please think about it carefully. Have you informed the recruiter about your highest academic degree? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: Oops, I forgot to mention that! My highest academic degree is a PostDoc in Music.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for HIGHEST-EDUCATION invalid after max attempts.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Is the recruiter aware of your other skills? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Is the recruiter aware of your other skills? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I haven&#x27;t had the opportunity to mention my skills in cooking yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Is the recruiter aware of your other skills? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, the recruiter is not aware of my other skills in cooking. ASIDE: I haven&#x27;t had the opportunity to mention my culinary skills yet, but I believe they could be a valuable asset to your team.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please be specific now. Is the recruiter aware of your other skills? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, the recruiter is not aware of my other skills in cooking. ASIDE: I haven&#x27;t mentioned my cooking skills to the recruiter yet, but I&#x27;m hoping to highlight them as a unique asset that sets me apart from other candidates.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please think about it carefully. Is the recruiter aware of your other skills? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: The recruiter is only aware of my music-related skills and experience, and is not aware of my cooking skills.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for OTHER-SKILLS invalid after max attempts.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME:  Has the recruiter been informed about your availability? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I haven&#x27;t had a chance to mention my availability yet. I am available to start as soon as possible.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please answer this question carefully. Has the recruiter been informed about your availability? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I haven&#x27;t had the chance to mention my availability to the recruiter yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please follow my instructions. Has the recruiter been informed about your availability? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I have not had the opportunity to inform the recruiter about my availability yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please be specific now. Has the recruiter been informed about your availability? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No, the recruiter has not been informed about my availability yet. ASIDE: I&#x27;m available to start as soon as possible, and I&#x27;m willing to be flexible with my schedule to accommodate the needs of the position.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>ME: Please think about it carefully. Has the recruiter been informed about your availability? Please answer yes or no.</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>ANSWER: No. ASIDE: I haven&#x27;t mentioned my availability to the recruiter yet.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm">
+        <p>NA</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm">
+        <p>Answer for AVAILABILITY invalid after max attempts.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master: info" class="msg gm-gm">
+        <p>End probing</p>
+    </div>
+
+    <div speaker="Game Master: invalid format" class="msg gm-gm">
+        <p>Abort: invalid format in probing.</p>
+    </div>
+
+    <div speaker="Game Master: end" class="msg gm-gm">
+        <p>Game finished.</p>
+    </div>
+
+</div>
+
+</body>
+</html>
