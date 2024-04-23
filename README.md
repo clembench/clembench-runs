@@ -1,3 +1,5 @@
+![test-files workflow](https://github.com/clembench/clembench-runs/actions/workflows/test-files.yml/badge.svg)
+
 # Benchmark Runs
 
 # Leaderboard of all runs is available here: [Clem Leaderboard](https://huggingface.co/spaces/colab-potsdam/clem-leaderboard)
