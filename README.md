@@ -12,6 +12,8 @@
 
 ### **v1.5** - March 2024
 
+### **v1.6** - May 2024
+
 ## Supported Models
 
 The list of supported open & closed/commercial models can be found here: [model registry](https://github.com/clembench/clembench/blob/main/backends/model_registry.json)
