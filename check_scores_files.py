@@ -38,7 +38,7 @@ def count_missing_scores(root_folder):
 
 
 # Set the root folder path
-root_folder = "v1.5"
+root_folder = "v1.6"
 
 # Call the function
 missing_count = count_missing_scores(root_folder)

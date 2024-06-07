@@ -1,0 +1,706 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* This CSS is an adaptation from the answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {background-color: rgb(157, 152, 150);}
+
+  /* dialogue header */
+
+.top-info {
+  text-align: center;
+  --rad: 20px;
+  --rad-sm: 3px;
+  font: 20px/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: #3f3e3e;
+  color: #fff;
+}
+
+.chat {
+    --rad: 20px;
+    --rad-sm: 3px;
+    font: 16px/1.5 sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+  }
+  
+  .msg {
+    position: relative;
+    max-width: 75%;
+    padding: 7px 15px;
+    margin-bottom: 30px;
+  }
+  
+  /* 5 levels, two players to/from game master and meta messages form game master */
+
+  .msg.b-gm {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #874aaf;
+    color: #fff;
+    margin-left: 60%;
+  }
+
+  .msg.a-gm {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #f39109;
+    color: #fff;
+    margin-right: 60%;
+  }
+  
+  .msg.gm-a {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #c4c3c3;    
+    color: #0c0c0c;
+    margin-right: 40%;
+    margin-left: 20%;
+  }
+
+  .msg.gm-b {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #c4c3c3;
+    color: #0c0c0c;
+    margin-right: 20%;
+    margin-left: 40%;
+  }
+
+  .msg.gm-gm {
+    background: #f1f1f1;
+    color: #373636;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 0.8rem;
+
+  }
+  
+  /* speaker labels */
+  
+  .msg::before {
+    content: attr(speaker);
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 100%;
+    color: #888;
+    white-space: nowrap;
+
+  }
+  
+  .msg.b-gm::before {
+    right: 15px;
+  }
+
+  .msg.gm-a::before {
+    right: 15px;
+  }
+
+  .msg.a-gm::before {
+    left: 15px;
+  }
+
+  .msg.gm-b::before {
+    left: 15px;
+  }
+
+  .msg.gm-gm::before {
+    left: 0px;
+  }
+  
+
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for on, episode 4 with llava-1.5-13b-hf-t0.0--llava-1.5-13b-hf-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 0, &quot;room&quot;: &quot;cloakroom&quot;, &quot;image&quot;: &quot;ADE_train_00005669.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;start&quot;: [2, 2], &quot;size&quot;: 8, &quot;game&quot;: &quot;mm_mapworld_specificroom&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>Please help me with the following task. The goal is to explore rooms and find target room. In each room I will show you an image of the room and tell you in what directions we can go from there. You then give me a description of the room you see in exactly one sentence. Please give your answer in the following format: &quot;{&quot;description&quot;: &quot;&lt;room description&gt;&quot;, &quot;action&quot;: &quot;&lt;action&gt;&quot;}&quot;. To move to a neighboring room, replace &lt;action&gt; with &quot;GO: DIRECTION&quot; where DIRECTION can be one of [north, south, east, west]. Most importantly, once we have found the target room, replace &lt;action&gt; with &quot;DONE&quot; instead. Omit any other text.<br/>Here is an example:<br/>The target room is a bathroom.<br/>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a kitchen with a red fridge.&quot;, &quot;action&quot;: &quot;GO: north&quot;}<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a living room with a couch and a tv.&quot;, &quot;action&quot;: &quot;GO: east&quot;}<br/>...<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a bathroom, there is a shower and a sink&quot;, &quot;action&quot;: &quot;DONE&quot;}<br/>Let us start. The target room is a cloakroom<br/>We are now in this room. From here we can go: west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>Please help me with the following task. The goal is to explore rooms and find target room. In each room I will show you an image of the room and tell you in what directions we can go from there. You then give me a description of the room you see in exactly one sentence. Please give your answer in the following format: &quot;{&quot;description&quot;: &quot;&lt;room description&gt;&quot;, &quot;action&quot;: &quot;&lt;action&gt;&quot;}&quot;. To move to a neighboring room, replace &lt;action&gt; with &quot;GO: DIRECTION&quot; where DIRECTION can be one of [north, south, east, west]. Most importantly, once we have found the target room, replace &lt;action&gt; with &quot;DONE&quot; instead. Omit any other text.<br/>Here is an example:<br/>The target room is a bathroom.<br/>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a kitchen with a red fridge.&quot;, &quot;action&quot;: &quot;GO: north&quot;}<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a living room with a couch and a tv.&quot;, &quot;action&quot;: &quot;GO: east&quot;}<br/>...<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a bathroom, there is a shower and a sink&quot;, &quot;action&quot;: &quot;DONE&quot;}<br/>Let us start. The target room is a cloakroom<br/>We are now in this room. From here we can go: west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a cloakroom with a bench and a coat rack.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 2], &quot;new&quot;: [1, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 1, &quot;room&quot;: &quot;kindergarden_classroom&quot;, &quot;image&quot;: &quot;ADE_train_00010116.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a cloakroom with a bench and a coat rack.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, north, east, south. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, north, east, south. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a playroom with a playground, a toy car, and a toy boat.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 2], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 2, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a playroom with a playground, a toy car, and a toy boat.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 3, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 4, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 5, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 6, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 7, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 8, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 9, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 10, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 11, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 12, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 13, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 14, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 15, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 16, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 17, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 18, &quot;room&quot;: &quot;tearoom&quot;, &quot;image&quot;: &quot;ADE_train_00019088.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, south, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 2], &quot;new&quot;: [0, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: room_image" class="msg gm-gm">
+        <p>{&quot;turn&quot;: 19, &quot;room&quot;: &quot;veranda&quot;, &quot;image&quot;: &quot;ADE_train_00019501.jpg&quot;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a couch, a chair, and a dining table.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 1], &quot;new&quot;: [0, 2]}</p>
+    </div>
+
+    <div speaker="Game Master: aborted" class="msg gm-gm">
+        <p>True</p>
+    </div>
+
+    <div speaker="Game Master: turn limit reached" class="msg gm-gm">
+        <p>True</p>
+    </div>
+
+</div>
+
+</body>
+</html>
