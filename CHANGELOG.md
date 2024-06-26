@@ -14,6 +14,19 @@ In general, we follow a semantic versioning approach:
 
 
 
+## v1.6-multimodal [2024-06]
+### Summary
+Started a new variant of the benchmark, for testing multimodal / language+vision models.
+
+### Details
+#### Added
+- Results for multimodal reference game.
+- Results for new MatchIt game.
+- Results for MapWorld games.
+
+
+
+
 ## v1.6  [2024-05]
 ### Summary
 Small fixes to games and scoring rules. (TO ADD: What exactly?)
@@ -22,7 +35,7 @@ Small fixes to games and scoring rules. (TO ADD: What exactly?)
 
 
 
-## 1.5 [2024-03]
+## v1.5 [2024-03]
 ### Summary
 
 1.5 -- new instances for all games
@@ -31,7 +44,7 @@ Small fixes to games and scoring rules. (TO ADD: What exactly?)
 
 
 
-## 1.0 [2023-12]
+## v1.0 [2023-12]
 ### Summary
 
 Small fixes to games and scoring rules
@@ -40,7 +53,7 @@ Small fixes to games and scoring rules
 
 
 
-## 0.9 [2023-09]
+## v0.9 [2023-09]
 ### Summary
 Initial version
 
