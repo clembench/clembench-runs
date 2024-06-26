@@ -12,9 +12,10 @@ In general, we follow a semantic versioning approach:
     - scoring or parsing rules in the games have changed in such a way as to influence the scores
        (in a minor way).
 
+Note that the dates represent the month in which the version was created. We continuously run new models and add the results to the latest version's directory (so there can be commits with a later date).
 
 
-## v1.6-multimodal [2024-06]
+## v1.6-multimodal [June 2024]
 ### Summary
 Started a new variant of the benchmark, for testing multimodal / language+vision models.
 
@@ -27,7 +28,7 @@ Started a new variant of the benchmark, for testing multimodal / language+vision
 
 
 
-## v1.6  [2024-05]
+## v1.6  [May 2024]
 ### Summary
 Small fixes to games and scoring rules. (TO ADD: What exactly?)
 
@@ -35,7 +36,7 @@ Small fixes to games and scoring rules. (TO ADD: What exactly?)
 
 
 
-## v1.5 [2024-03]
+## v1.5 [March 2024]
 ### Summary
 
 1.5 -- new instances for all games
@@ -44,7 +45,7 @@ Small fixes to games and scoring rules. (TO ADD: What exactly?)
 
 
 
-## v1.0 [2023-12]
+## v1.0 [November 2023]
 ### Summary
 
 Small fixes to games and scoring rules
@@ -53,7 +54,7 @@ Small fixes to games and scoring rules
 
 
 
-## v0.9 [2023-09]
+## v0.9 [June 2023]
 ### Summary
 Initial version
 
