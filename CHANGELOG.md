@@ -26,23 +26,25 @@ Started a new variant of the benchmark, for testing multimodal / language+vision
 - Results for MapWorld games.
 
 
-
-
 ## v1.6  [May 2024]
 ### Summary
-Small fixes to games and scoring rules. (TO ADD: What exactly?)
+Small fixes to games and scoring rules.
 
 ### Details
-
+- Wordle: scoring is adapted to give 100 points when number of turns <= 3.
+- Reference: adapted the regex (prefix + output)
 
 
 ## v1.5 [March 2024]
 ### Summary
 
-1.5 -- new instances for all games
+1.5 -- new instances for all games, new models, improved framework code
 
 ### Details
-
+- added new models (Claude-3, GPT-4, Llama-3, Command-R, Mixtral, QWEN-1.5, etc.)
+- Game code is changed to remove language-specific implementation to instances file so that the game implementations are language-agnostic (to run multilingual experiments)
+- Image game: the parsing changed to accept only matching outputs (prefix + output)
+- Reference game: the parsing changed to accept only matching outputs (prefix + output)
 
 
 ## v1.0 [November 2023]
