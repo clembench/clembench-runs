@@ -1,0 +1,710 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* This CSS is an adaptation from the answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {background-color: rgb(157, 152, 150);}
+
+  /* dialogue header */
+
+.top-info {
+  text-align: center;
+  --rad: 20px;
+  --rad-sm: 3px;
+  font: 20px/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: #3f3e3e;
+  color: #fff;
+}
+
+.chat {
+    --rad: 20px;
+    --rad-sm: 3px;
+    font: 16px/1.5 sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+  }
+  
+  .msg {
+    position: relative;
+    max-width: 75%;
+    padding: 7px 15px;
+    margin-bottom: 30px;
+  }
+  
+  /* 5 levels, two players to/from game master and meta messages form game master */
+
+  .msg.b-gm {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #874aaf;
+    color: #fff;
+    margin-left: 60%;
+  }
+
+  .msg.a-gm {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #f39109;
+    color: #fff;
+    margin-right: 60%;
+  }
+  
+  .msg.gm-a {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #c4c3c3;    
+    color: #0c0c0c;
+    margin-right: 40%;
+    margin-left: 20%;
+  }
+
+  .msg.gm-b {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #c4c3c3;
+    color: #0c0c0c;
+    margin-right: 20%;
+    margin-left: 40%;
+  }
+
+  .msg.gm-gm {
+    background: #f1f1f1;
+    color: #373636;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 0.8rem;
+
+  }
+  
+  /* speaker labels */
+  
+  .msg::before {
+    content: attr(speaker);
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 100%;
+    color: #888;
+    white-space: nowrap;
+
+  }
+  
+  .msg.b-gm::before {
+    right: 15px;
+  }
+
+  .msg.gm-a::before {
+    right: 15px;
+  }
+
+  .msg.a-gm::before {
+    left: 15px;
+  }
+
+  .msg.gm-b::before {
+    left: 15px;
+  }
+
+  .msg.gm-gm::before {
+    left: 0px;
+  }
+  
+
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for none, episode 8 with gpt-4o-2024-05-13-t0.0--gpt-4o-2024-05-13-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;start&quot;: [3, 2], &quot;size&quot;: 8, &quot;game&quot;: &quot;mm_mapworld_qa&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We are currently in this room. Please help me with the following task. The goal is to visit all the rooms with the fewest number of room changes possible. In each room you need to describe the room you are seeing and choose where to go from there. Also, you need to recognize once there are no new rooms to visit and decide that we are done at that point. Please give your answer in the following format: &quot;{&quot;description&quot;: &quot;&lt;room description&gt;&quot;, &quot;action&quot;: &quot;&lt;action&gt;&quot;}&quot;. Replace &lt;room description&gt; with a single sentence describing the room we are in. To move to a neighboring room, replace &lt;action&gt; with &quot;GO: DIRECTION&quot; where DIRECTION can be one of [north, south, east, west]. To stop the exploration, replace &lt;action&gt; with &quot;DONE&quot;. Omit any other text.<br/>Here is an example:<br/>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a kitchen with a red fridge.&quot;, &quot;action&quot;: &quot;GO: north&quot;}<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a living room with a couch and a tv.&quot;, &quot;action&quot;: &quot;GO: east&quot;}<br/>...<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a bathroom&quot;, &quot;action&quot;: &quot;DONE&quot;}<br/>Let us start. <br/>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We are currently in this room. Please help me with the following task. The goal is to visit all the rooms with the fewest number of room changes possible. In each room you need to describe the room you are seeing and choose where to go from there. Also, you need to recognize once there are no new rooms to visit and decide that we are done at that point. Please give your answer in the following format: &quot;{&quot;description&quot;: &quot;&lt;room description&gt;&quot;, &quot;action&quot;: &quot;&lt;action&gt;&quot;}&quot;. Replace &lt;room description&gt; with a single sentence describing the room we are in. To move to a neighboring room, replace &lt;action&gt; with &quot;GO: DIRECTION&quot; where DIRECTION can be one of [north, south, east, west]. To stop the exploration, replace &lt;action&gt; with &quot;DONE&quot;. Omit any other text.<br/>Here is an example:<br/>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a kitchen with a red fridge.&quot;, &quot;action&quot;: &quot;GO: north&quot;}<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a living room with a couch and a tv.&quot;, &quot;action&quot;: &quot;GO: east&quot;}<br/>...<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a bathroom&quot;, &quot;action&quot;: &quot;DONE&quot;}<br/>Let us start. <br/>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 2], &quot;new&quot;: [3, 3]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a dining room with a glass table and six chairs.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 3], &quot;new&quot;: [3, 2]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a dining room with a glass table and six chairs.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 2], &quot;new&quot;: [2, 2]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00015511.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00015511.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00015511.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00015511.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a game room with a pool table and wooden ceiling beams.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 2], &quot;new&quot;: [3, 2]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a game room with a pool table and wooden ceiling beams.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 2], &quot;new&quot;: [3, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are on a busy street with shops and parked cars.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are on a busy street with shops and parked cars.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a kitchen with white cabinets and a beige countertop.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a kitchen with white cabinets and a beige countertop.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a nautical-themed bedroom with a boat-shaped bed and blue decor.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [1, 0]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a nautical-themed bedroom with a boat-shaped bed and blue decor.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in an art studio with a drafting table and various artworks on the wall.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 0], &quot;new&quot;: [0, 0]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00006287.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00006287.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00006287.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00006287.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in an art studio with a drafting table and various artworks on the wall.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a hallway with red carpet and wooden doors.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [0, 0], &quot;new&quot;: [1, 0]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00001786.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a hallway with red carpet and wooden doors.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in an art studio with a drafting table and various artworks on the wall.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 0], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in an art studio with a drafting table and various artworks on the wall.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a nautical-themed bedroom with a boat-shaped bed and blue decor.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a nautical-themed bedroom with a boat-shaped bed and blue decor.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a kitchen with white cabinets and a beige countertop.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [3, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a kitchen with white cabinets and a beige countertop.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are on a busy street with shops and parked cars.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 1], &quot;new&quot;: [3, 2]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are on a busy street with shops and parked cars.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 2], &quot;new&quot;: [3, 3]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00007062.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a dining room with a glass table and six chairs.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 3], &quot;new&quot;: [3, 2]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00000883.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a dining room with a glass table and six chairs.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 2], &quot;new&quot;: [3, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00018804.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a stone fireplace and two beige sofas.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are on a busy street with shops and parked cars.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [3, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00010289.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are on a busy street with shops and parked cars.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east, west. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a kitchen with white cabinets and a beige countertop.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg&quot;]}</p>
+  <a title="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg"><img style="width:100%" src="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg" alt="/home/yan/Documents/Github/clembench/games/mm_mapworld_qa/resources/images/ADE_train_00005484.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a kitchen with white cabinets and a beige countertop.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: east, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: east, south. What is your next instruction?<br/></p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a nautical-themed bedroom with a boat-shaped bed and blue decor.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [1, 0]}</p>
+    </div>
+
+    <div speaker="Game Master: aborted" class="msg gm-gm">
+        <p>True</p>
+    </div>
+
+    <div speaker="Game Master: turn limit reached" class="msg gm-gm">
+        <p>True</p>
+    </div>
+
+    <div speaker="Game Master: answers" class="msg gm-gm">
+        <p>[]</p>
+    </div>
+
+</div>
+
+</body>
+</html>
