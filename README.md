@@ -2,17 +2,11 @@
 
 # Benchmark Runs
 
-# Leaderboard of all runs is available here: [Clem Leaderboard](https://huggingface.co/spaces/colab-potsdam/clem-leaderboard)
+# Leaderboard available here: [Clem Leaderboard](https://huggingface.co/spaces/colab-potsdam/clem-leaderboard)
 
 ## Versions
 
-### **v0.9** - June 2023
-
-### **v1.0** - November 2023
-
-### **v1.5** - March 2024
-
-### **v1.6** - May 2024
+See [CHANGELOG](CHANGELOG.md)
 
 ## Supported Models
 
