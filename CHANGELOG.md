@@ -38,7 +38,7 @@ Small fixes to games and scoring rules.
 ## v1.5 [March 2024]
 ### Summary
 
-1.5 -- new instances for all games, new models, improved framework code
+1.5 -- **new instances for all games**, new models, improved framework code
 
 ### Details
 - added new models (Claude-3, GPT-4, Llama-3, Command-R, Mixtral, QWEN-1.5, etc.)
