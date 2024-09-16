@@ -1,0 +1,706 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* This CSS is an adaptation from the answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {background-color: rgb(157, 152, 150);}
+
+  /* dialogue header */
+
+.top-info {
+  text-align: center;
+  --rad: 20px;
+  --rad-sm: 3px;
+  font: 20px/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: #3f3e3e;
+  color: #fff;
+}
+
+.chat {
+    --rad: 20px;
+    --rad-sm: 3px;
+    font: 16px/1.5 sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+  }
+  
+  .msg {
+    position: relative;
+    max-width: 75%;
+    padding: 7px 15px;
+    margin-bottom: 30px;
+  }
+  
+  /* 5 levels, two players to/from game master and meta messages form game master */
+
+  .msg.b-gm {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #874aaf;
+    color: #fff;
+    margin-left: 60%;
+  }
+
+  .msg.a-gm {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #f39109;
+    color: #fff;
+    margin-right: 60%;
+  }
+  
+  .msg.gm-a {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #c4c3c3;    
+    color: #0c0c0c;
+    margin-right: 40%;
+    margin-left: 20%;
+  }
+
+  .msg.gm-b {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #c4c3c3;
+    color: #0c0c0c;
+    margin-right: 20%;
+    margin-left: 40%;
+  }
+
+  .msg.gm-gm {
+    background: #f1f1f1;
+    color: #373636;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 0.8rem;
+
+  }
+  
+  /* speaker labels */
+  
+  .msg::before {
+    content: attr(speaker);
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 100%;
+    color: #888;
+    white-space: nowrap;
+
+  }
+  
+  .msg.b-gm::before {
+    right: 15px;
+  }
+
+  .msg.gm-a::before {
+    right: 15px;
+  }
+
+  .msg.a-gm::before {
+    left: 15px;
+  }
+
+  .msg.gm-b::before {
+    left: 15px;
+  }
+
+  .msg.gm-gm::before {
+    left: 0px;
+  }
+  
+
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for medium, episode 7 with Pixtral-12B-2409-t0.0--Pixtral-12B-2409-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00020174.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00020174.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00020174.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00020174.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;start&quot;: [2, 0], &quot;size&quot;: 6, &quot;game&quot;: &quot;mm_mapworld&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We are currently in this room. Please help me with the following task. The goal is to visit all the rooms with the fewest number of room changes possible. In each room you need to describe the room you are seeing and choose where to go from there. Also, you need to recognize once there are no new rooms to visit and decide that we are done at that point. Please give your answer in the following format: &quot;{&quot;description&quot;: &quot;&lt;room description&gt;&quot;, &quot;action&quot;: &quot;&lt;action&gt;&quot;}&quot;. Replace &lt;room description&gt; with a single sentence describing the room we are in. To move to a neighboring room, replace &lt;action&gt; with &quot;GO: DIRECTION&quot; where DIRECTION can be one of [north, south, east, west]. To stop the exploration, replace &lt;action&gt; with &quot;DONE&quot;. Omit any other text.<br/>Here is an example:<br/>We are in this room. From here we can go: north, west. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a kitchen with a red fridge.&quot;, &quot;action&quot;: &quot;GO: north&quot;}<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a living room with a couch and a tv.&quot;, &quot;action&quot;: &quot;GO: east&quot;}<br/>...<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a bathroom&quot;, &quot;action&quot;: &quot;DONE&quot;}<br/>Let us start. <br/>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We are currently in this room. Please help me with the following task. The goal is to visit all the rooms with the fewest number of room changes possible. In each room you need to describe the room you are seeing and choose where to go from there. Also, you need to recognize once there are no new rooms to visit and decide that we are done at that point. Please give your answer in the following format: &quot;{&quot;description&quot;: &quot;&lt;room description&gt;&quot;, &quot;action&quot;: &quot;&lt;action&gt;&quot;}&quot;. Replace &lt;room description&gt; with a single sentence describing the room we are in. To move to a neighboring room, replace &lt;action&gt; with &quot;GO: DIRECTION&quot; where DIRECTION can be one of [north, south, east, west]. To stop the exploration, replace &lt;action&gt; with &quot;DONE&quot;. Omit any other text.<br/>Here is an example:<br/>We are in this room. From here we can go: north, west. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a kitchen with a red fridge.&quot;, &quot;action&quot;: &quot;GO: north&quot;}<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a living room with a couch and a tv.&quot;, &quot;action&quot;: &quot;GO: east&quot;}<br/>...<br/>We have made a step and are now in this room. From here we can go: south, east. What is your next instruction?<br/>{&quot;description&quot;: &quot;We are in a bathroom&quot;, &quot;action&quot;: &quot;DONE&quot;}<br/>Let us start. <br/>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a room with two sets of bunk beds and yellow walls.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 0], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a room with two sets of bunk beds and yellow walls.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a TV, a coffee table, and leather sofas. There is a door leading to a balcony with a view.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a living room with a TV, a coffee table, and leather sofas. There is a door leading to a balcony with a view.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a spacious garage with white walls and a clean concrete floor. A silver convertible car is parked in the center and there are cycles hanging from the ceiling on bike racks.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a spacious garage with white walls and a clean concrete floor. A silver convertible car is parked in the center and there are cycles hanging from the ceiling on bike racks.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a modern living room with oak flooring, leather Charles Eames style chairs in brown, aР·CE coffee table, and a green rug.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a modern living room with oak flooring, leather Charles Eames style chairs in brown, aР·CE coffee table, and a green rug.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;The garage has a silver convertible parked in the middle, white cabinets along the walls with a white workbench, and bikes hanging from a ceiling rack.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;The garage has a silver convertible parked in the middle, white cabinets along the walls with a white workbench, and bikes hanging from a ceiling rack.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a cozy living room with a large window that offers a scenic view outside. There are two black leather sofas arranged around a wooden coffee table, a TV placed on a wooden stand, and a rug on the wooden floor.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [2, 0]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00020174.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00020174.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00020174.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00020174.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a cozy living room with a large window that offers a scenic view outside. There are two black leather sofas arranged around a wooden coffee table, a TV placed on a wooden stand, and a rug on the wooden floor.&quot;, &quot;action&quot;: &quot;GO: south&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: north. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are back in the room with two wooden bunk beds, each mattress covered with a brown and beige checked bedspread. The walls are painted in a bright yellow color, and there is a wooden door in the far end.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 0], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are back in the room with two wooden bunk beds, each mattress covered with a brown and beige checked bedspread. The walls are painted in a bright yellow color, and there is a wooden door in the far end.&quot;, &quot;action&quot;: &quot;GO: north&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;A well-lit living room with a comfortable and stylish interior. It features two large black leather armchairs facing each other, with a small coffee table in the middle. There&#x27;s a modern TV stand with a flat-screen TV and a wooden side table. Large windows cover one wall, offering views of the outside and letting in ample natural light.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;A well-lit living room with a comfortable and stylish interior. It features two large black leather armchairs facing each other, with a small coffee table in the middle. There&#x27;s a modern TV stand with a flat-screen TV and a wooden side table. Large windows cover one wall, offering views of the outside and letting in ample natural light.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;A spotless, well-organized garage with white walls and a concrete floor. There are white cabinets and shelves mounted on the left wall, a small bump-out cabinet to the left of them, and a silver convertible car parked in the center. Two mountain bikes are mounted on the ceiling via a red hoist.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;A spotless, well-organized garage with white walls and a concrete floor. There are white cabinets and shelves mounted on the left wall, a small bump-out cabinet to the left of them, and a silver convertible car parked in the center. Two mountain bikes are mounted on the ceiling via a red hoist.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a bright and spacious living room with large windows and sliding glass doors that lead to a balcony, offering a panoramic view of the surroundings. The room features leather sofas, a wooden coffee table, a TV stand with a flat-screen TV, and modern light fixtures.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a bright and spacious living room with large windows and sliding glass doors that lead to a balcony, offering a panoramic view of the surroundings. The room features leather sofas, a wooden coffee table, a TV stand with a flat-screen TV, and modern light fixtures.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;A well-organized garage with a silver convertible parked towards the center. Above the car, there are two bikes hanging on the ceiling via an orange and black hoist. To the left, there&#x27;s a set of white cabinets and shelves mounted on the wall with a workbench below them and a cut-out for a trash can.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;A well-organized garage with a silver convertible parked towards the center. Above the car, there are two bikes hanging on the ceiling via an orange and black hoist. To the left, there&#x27;s a set of white cabinets and shelves mounted on the wall with a workbench below them and a cut-out for a trash can.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;The living room features two dark brown leather sofas arranged around a wooden coffee table, which is situated on a white rug. A flat-screen TV is placed on a wooden stand against the wall, flanked by two small wooden side tables. A large window with two sections is on the left, with curtains that have a wavy pattern, and a sliding glass door to the balcony is situated in the center with similar curtains. A hanging light fixture provides warm lighting to the room, and a framed picture is mounted on the wall above a white radiator.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;The living room features two dark brown leather sofas arranged around a wooden coffee table, which is situated on a white rug. A flat-screen TV is placed on a wooden stand against the wall, flanked by two small wooden side tables. A large window with two sections is on the left, with curtains that have a wavy pattern, and a sliding glass door to the balcony is situated in the center with similar curtains. A hanging light fixture provides warm lighting to the room, and a framed picture is mounted on the wall above a white radiator.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;The garage has a silver convertible parked towards the center. Above it, there are two bikes hanging on the ceiling via an orange and black hoist. To the left, there&#x27;s a set of white cabinets and shelves mounted on the wall with a workbench below them and a cut-out for a trash can. On the wall opposite, there is a door leading to another area.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;The garage has a silver convertible parked towards the center. Above it, there are two bikes hanging on the ceiling via an orange and black hoist. To the left, there&#x27;s a set of white cabinets and shelves mounted on the wall with a workbench below them and a cut-out for a trash can. On the wall opposite, there is a door leading to another area.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a brightly lit living room with large windows and patio doors leading to a balcony. The room features two black leather sofas arranged around a wooden coffee table, which is covered with a blue tablecloth. There is a flat-screen TV on a wooden stand opposite the sofas, and a large rug covers the wooden floor. Curtains with a wavy pattern are drawn over the windows and patio doors.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a brightly lit living room with large windows and patio doors leading to a balcony. The room features two black leather sofas arranged around a wooden coffee table, which is covered with a blue tablecloth. There is a flat-screen TV on a wooden stand opposite the sofas, and a large rug covers the wooden floor. Curtains with a wavy pattern are drawn over the windows and patio doors.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;The garage is clean and organized with white cabinets and shelves mounted on the left wall. A silver convertible car is parked towards the center. Above the car, there are two bikes hanging from the ceiling using a black hoist. There is also a small workbench with a black toolbox on it.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;The garage is clean and organized with white cabinets and shelves mounted on the left wall. A silver convertible car is parked towards the center. Above the car, there are two bikes hanging from the ceiling using a black hoist. There is also a small workbench with a black toolbox on it.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a cozy living room furnished with two black leather sofas facing each other, separated by a wooden coffee table. A TV is placed on a wooden stand to one side, and a large beige rug covers the wooden floor. There are two windows with patterned beige and brown curtains, allowing natural light to fill the room. A door leads to the south, and another one is to the west.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a cozy living room furnished with two black leather sofas facing each other, separated by a wooden coffee table. A TV is placed on a wooden stand to one side, and a large beige rug covers the wooden floor. There are two windows with patterned beige and brown curtains, allowing natural light to fill the room. A door leads to the south, and another one is to the west.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;This is a spacious and well-organized garage. A silver convertible is parked in the center, with storage cabinets along the left wall. There are also two bikes suspended from the ceiling with a red hoist. A&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;This is a spacious and well-organized garage. A silver convertible is parked in the center, with storage cabinets along the left wall. There are also two bikes suspended from the ceiling with a red hoist. A&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;We are in a cozy living room furnished with two black leather sofas arranged around a wooden coffee table, which sits on a large rug. A TV is placed on a wooden stand opposite the sofas, and a large window with drawn curtains allows natural light to fill the room. There is a door leading west and another leading south.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00008444.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00008444.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;We are in a cozy living room furnished with two black leather sofas arranged around a wooden coffee table, which sits on a large rug. A TV is placed on a wooden stand opposite the sofas, and a large window with drawn curtains allows natural light to fill the room. There is a door leading west and another leading south.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: west, east. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;A well-organized garage with a silver convertible parked in the center. Above the car, there are two bicycles mounted on the ceiling using a red hoist. On the left wall, there are white cabinets and a countertop with a sink. To the right, there is a trash can and a recycling bin.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [1, 1], &quot;new&quot;: [2, 1]}</p>
+    </div>
+<div speaker="Game Master: room_image" class="msg gm-gm">
+  <p>{&quot;image&quot;: [&quot;games/mm_mapworld/resources/images/ADE_train_00000681.jpg&quot;]}</p>
+  <a title="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg"><img style="width:100%" src="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" alt="/project/kkoshti/clembench/games/mm_mapworld/resources/images/ADE_train_00000681.jpg" /></a>
+</div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>{&quot;description&quot;: &quot;A well-organized garage with a silver convertible parked in the center. Above the car, there are two bicycles mounted on the ceiling using a red hoist. On the left wall, there are white cabinets and a countertop with a sink. To the right, there is a trash can and a recycling bin.&quot;, &quot;action&quot;: &quot;GO: east&quot;}</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>We have made a step and are now in this room. From here we can go: south, west. What is your next instruction?</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>{&quot;description&quot;: &quot;This living room features two black leather couches facing a wooden coffee table, which sits atop a white shag rug. A TV is placed on a wooden stand against the wall, and two small wooden side tables flank the TV. There are two large windows with patterned curtains on the left wall, allowing natural light to fill the room, and sliding glass doors leading to a balcony on the right wall. A hanging light fixture provides additional illumination, and a framed picture is mounted on the wall above the sliding doors.&quot;, &quot;action&quot;: &quot;GO: west&quot;}</p>
+    </div>
+
+    <div speaker="Game Master: Valid format" class="msg gm-gm">
+        <p>Continue</p>
+    </div>
+
+    <div speaker="Game Master: move" class="msg gm-gm">
+        <p>{&quot;old&quot;: [2, 1], &quot;new&quot;: [1, 1]}</p>
+    </div>
+
+    <div speaker="Game Master: aborted" class="msg gm-gm">
+        <p>True</p>
+    </div>
+
+    <div speaker="Game Master: turn limit reached" class="msg gm-gm">
+        <p>True</p>
+    </div>
+
+</div>
+
+</body>
+</html>
