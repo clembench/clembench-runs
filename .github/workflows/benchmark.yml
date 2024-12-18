@@ -1,0 +1,90 @@
+name: Update Folder Log with Commit Dates
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository with full history
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetch full Git history to access all commits
+
+    - name: Install jq (for JSON processing)
+      run: sudo apt-get install -y jq
+
+    - name: Debug and Update JSON
+      run: |
+        # Path to the JSON file
+        JSON_FILE="benchmark_runs.json"
+
+        # Check if the JSON file exists
+        if [ ! -f "$JSON_FILE" ]; then
+          echo "Error: JSON file '$JSON_FILE' not found."
+          exit 1
+        fi
+
+        # Read the JSON file
+        EXISTING_JSON=$(cat "$JSON_FILE")
+
+        # Extract version folders
+        VERSION_FOLDERS=$(echo "$EXISTING_JSON" | jq -r '.versions[].version')
+
+        # Initialize updated JSON
+        UPDATED_JSON=$(echo "$EXISTING_JSON" | jq '.')
+
+        echo "Processing the following versions: $VERSION_FOLDERS"
+
+        for VERSION in $VERSION_FOLDERS; do
+          FOLDER="$VERSION"
+
+          # Check if the folder exists
+          if [ -d "$FOLDER" ]; then
+            echo "Processing folder: $FOLDER"
+
+            # Get first and last commit dates
+            FIRST_COMMIT_DATE=$(git log --reverse --format=%cs -- "$FOLDER" | head -n 1)
+            LAST_COMMIT_DATE=$(git log -1 --format=%cs -- "$FOLDER")
+
+            echo "First commit date: $FIRST_COMMIT_DATE"
+            echo "Last commit date: $LAST_COMMIT_DATE"
+
+            if [ -n "$FIRST_COMMIT_DATE" ] && [ -n "$LAST_COMMIT_DATE" ]; then
+              # Update JSON, but skip updating release_date for v0.9
+              UPDATED_JSON=$(echo "$UPDATED_JSON" | jq --arg version "$VERSION" --arg first "$FIRST_COMMIT_DATE" --arg last "$LAST_COMMIT_DATE" '
+                .versions |= map(
+                  if .version == $version then
+                    .release_date = (if $version == "v0.9" then .release_date else (if .release_date == "" then $first else .release_date end) end) |
+                    .last_updated = $last
+                  else .
+                  end
+                )
+              ')
+            fi
+          else
+            echo "Warning: Folder '$FOLDER' does not exist."
+          fi
+        done
+
+        # Debugging: Print updated JSON
+        echo "Updated JSON:"
+        echo "$UPDATED_JSON"
+
+        # Write the updated JSON back to the file
+        echo "$UPDATED_JSON" > "$JSON_FILE"
+
+    - name: Commit and Push Changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add benchmark_runs.json
+        git commit -m "Update folder log with commit dates" || echo "No changes to commit"
+        git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
