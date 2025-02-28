@@ -14,8 +14,16 @@ In general, we follow a semantic versioning approach:
 
 Note that the dates represent the month in which the version was created. We continuously run new models and add the results to the latest version's directory (so there can be commits with a later date).
 
+## v2.0 [March 2025]
 
-## v1.6-multimodal [June 2024]
+Added new games: matchit_ascii, codenames, adventuregame, guesswhat, textmapworld, textmapworld-specificroom, textmapworld-graph
+
+Existing games have new instances created.
+
+Total instances: 817
+
+
+## v1.6.5-multimodal [September 2024]
 ### Summary
 Started a new variant of the benchmark, for testing multimodal / language+vision models.
 

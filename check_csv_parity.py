@@ -83,3 +83,6 @@ if __name__ == "__main__":
 
     v1_6_quantized_csv_parity = check_csv_parity("v1.6_quantized")
     print(v1_6_quantized_csv_parity)
+
+    v2_0_quantized_csv_parity = check_csv_parity("v2.0")
+    print(v2_0_quantized_csv_parity)
