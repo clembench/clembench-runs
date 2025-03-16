@@ -7,7 +7,7 @@ import re
 from transformers import LlamaTokenizer
 
 HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
-tokenizer = LlamaTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf", token=HUGGINGFACE_TOKEN)
+tokenizer = LlamaTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf", use_auth_token=HUGGINGFACE_TOKEN)
 
 logging.basicConfig(filename='tokens.log', level=logging.INFO)
 
