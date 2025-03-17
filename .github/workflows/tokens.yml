@@ -1,0 +1,45 @@
+name: Run calculate_tokens.py on Push
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  run-calculate-tokens:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10  
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run calculate_tokens.py script
+        env:
+          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+        run: |
+          python calculate_tokens.py 
+          
+      - name: Commit and Push CSV files (if changes detected)
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check for changes
+          if git diff --quiet; then
+            echo "No changes detected. Skipping commit."
+          else
+            git add Addenda/Tokens/*.csv  
+            git commit -m "Updated token csvs on push"
+            git push
+          fi
