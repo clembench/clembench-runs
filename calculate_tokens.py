@@ -122,8 +122,8 @@ for version in versions:
     for k in model_keys:
         model_name.append(k)
         try:
-            avg_input_tokens = tokens[k]['input_tokens'] / tokens[k]['message_count']
-            avg_output_tokens = tokens[k]['output_tokens'] / tokens[k]['message_count']
+            avg_input_tokens = int(tokens[k]['input_tokens'] / tokens[k]['message_count'])
+            avg_output_tokens = int(tokens[k]['output_tokens'] / tokens[k]['message_count'])
         except ZeroDivisionError:
             logging.error(f"Division by zero for model: {k}. Input: {tokens[k]['input_tokens']}, Output: {tokens[k]['output_tokens']}, Messages: {tokens[k]['message_count']}")
 
