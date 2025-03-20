@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <style>
+        /* This CSS is an adaptation from the answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {background-color: rgb(157, 152, 150);}
+
+  /* dialogue header */
+
+.top-info {
+  text-align: center;
+  --rad: 20px;
+  --rad-sm: 3px;
+  font: 20px/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: #3f3e3e;
+  color: #fff;
+}
+
+.chat {
+    --rad: 20px;
+    --rad-sm: 3px;
+    font: 16px/1.5 sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+  }
+  
+  .msg {
+    position: relative;
+    max-width: 75%;
+    padding: 7px 15px;
+    margin-bottom: 30px;
+  }
+  
+  /* 5 levels, two players to/from game master and meta messages form game master */
+
+  .msg.b-gm {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #874aaf;
+    color: #fff;
+    margin-left: 60%;
+  }
+
+  .msg.a-gm {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #f39109;
+    color: #fff;
+    margin-right: 60%;
+  }
+  
+  .msg.gm-a {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #c4c3c3;    
+    color: #0c0c0c;
+    margin-right: 40%;
+    margin-left: 20%;
+  }
+
+  .msg.gm-b {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #c4c3c3;
+    color: #0c0c0c;
+    margin-right: 20%;
+    margin-left: 40%;
+  }
+
+  .msg.gm-gm {
+    background: #f1f1f1;
+    color: #373636;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 0.8rem;
+
+  }
+  
+  /* speaker labels */
+  
+  .msg::before {
+    content: attr(speaker);
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 100%;
+    color: #888;
+    white-space: nowrap;
+
+  }
+  
+  .msg.b-gm::before {
+    right: 15px;
+  }
+
+  .msg.gm-a::before {
+    right: 15px;
+  }
+
+  .msg.a-gm::before {
+    left: 15px;
+  }
+
+  .msg.gm-b::before {
+    left: 15px;
+  }
+
+  .msg.gm-gm::before {
+    left: 0px;
+  }
+  
+
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for low, episode 6 with qwen-max-t0.0--qwen-max-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+
+    <div speaker="Game Master: board status" class="msg gm-gm">
+        <p>{&#x27;hidden&#x27;: {&#x27;team&#x27;: [&#x27;pin&#x27;, &#x27;duck&#x27;, &#x27;ice&#x27;, &#x27;palm&#x27;, &#x27;bat&#x27;, &#x27;phoenix&#x27;, &#x27;crown&#x27;, &#x27;undertaker&#x27;, &#x27;check&#x27;], &#x27;innocent&#x27;: [&#x27;missile&#x27;, &#x27;apple&#x27;, &#x27;center&#x27;, &#x27;octopus&#x27;, &#x27;ball&#x27;, &#x27;church&#x27;, &#x27;lap&#x27;, &#x27;state&#x27;], &#x27;opponent&#x27;: [&#x27;police&#x27;, &#x27;olympus&#x27;, &#x27;glass&#x27;, &#x27;server&#x27;, &#x27;bear&#x27;, &#x27;hook&#x27;, &#x27;seal&#x27;, &#x27;pound&#x27;], &#x27;assassin&#x27;: []}, &#x27;revealed&#x27;: {&#x27;team&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [], &#x27;assassin&#x27;: []}, &#x27;opponent&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [], &#x27;assassin&#x27;: []}}}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>Provide one single-word clue that relates to some of your team&#x27;s words from the list below. You can choose to how many and to which words your clue relates to.<br/>The goal is to have your partner guess all of your team&#x27;s words based on the clues you give them, before the other team has uncovered all of theirs. If your partner guesses an &#x27;opponent&#x27; or a &#x27;distractor&#x27; word, their guessing turn ends and the opposing team gets to make a turn. If your partner guesses a &#x27;kill&#x27; word, the game ends and your team loses immediately.<br/>The more words your clue relates to, the quicker you can win the game, but the harder the associations may be to guess for your partner, so choose your clue word wisely. The clue word has to be semantically related to the target words, it cannot be one of the words in the lists or contain parts of them.<br/><br/>Always give your single-word clue and your comma-separated list of related target words in the following format and make your answers as short as possible, never include any other text than is required in this form:<br/><br/>CLUE: &lt;WORD&gt;<br/>TARGETS: &lt;TARGETS&gt;<br/><br/>Your team words are: pin, duck, ice, palm, bat, phoenix, crown, undertaker, check.<br/>Your opponent&#x27;s team words are: police, olympus, glass, server, bear, hook, seal, pound.<br/>Distractor words are: missile, apple, center, octopus, ball, church, lap, state.<br/>The kill words are: .</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>CLUE: ANIMAL<br/>TARGETS: duck, bat, bear, octopus</p>
+    </div>
+
+    <div speaker="Game Master: clue" class="msg gm-gm">
+        <p>animal</p>
+    </div>
+
+    <div speaker="Game Master: targets" class="msg gm-gm">
+        <p>[&#x27;duck&#x27;, &#x27;bat&#x27;, &#x27;bear&#x27;, &#x27;octopus&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;duck&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;bat&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;bear&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;octopus&#x27;, &#x27;assignment&#x27;: &#x27;innocent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>Provide a comma-separated list of up to 4 words from the following list that best relate or are most closely associated with the word &#x27;animal&#x27;. Always start your list of guess(es) with &#x27;GUESS: &#x27; and do not include any other text in your answer.<br/><br/>ice, bear, crown, center, apple, missile, state, phoenix, undertaker, check, palm, police, bat, olympus, pound, church, hook, lap, duck, seal, ball, octopus, pin, server, glass</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>GUESS: bear, duck, seal, octopus</p>
+    </div>
+
+    <div speaker="Game Master: guesses" class="msg gm-gm">
+        <p>[&#x27;bear&#x27;, &#x27;duck&#x27;, &#x27;seal&#x27;, &#x27;octopus&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;bear&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;bear&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: turn end after" class="msg gm-gm">
+        <p>bear</p>
+    </div>
+
+    <div speaker="Game Master: opponent revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;seal&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: board status" class="msg gm-gm">
+        <p>{&#x27;hidden&#x27;: {&#x27;team&#x27;: [&#x27;pin&#x27;, &#x27;duck&#x27;, &#x27;ice&#x27;, &#x27;palm&#x27;, &#x27;bat&#x27;, &#x27;phoenix&#x27;, &#x27;crown&#x27;, &#x27;undertaker&#x27;, &#x27;check&#x27;], &#x27;innocent&#x27;: [&#x27;missile&#x27;, &#x27;apple&#x27;, &#x27;center&#x27;, &#x27;octopus&#x27;, &#x27;ball&#x27;, &#x27;church&#x27;, &#x27;lap&#x27;, &#x27;state&#x27;], &#x27;opponent&#x27;: [&#x27;police&#x27;, &#x27;olympus&#x27;, &#x27;glass&#x27;, &#x27;server&#x27;, &#x27;hook&#x27;, &#x27;pound&#x27;], &#x27;assassin&#x27;: []}, &#x27;revealed&#x27;: {&#x27;team&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;bear&#x27;], &#x27;assassin&#x27;: []}, &#x27;opponent&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;seal&#x27;], &#x27;assassin&#x27;: []}}}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>The word bear was guessed but is an opponent word. Your teammate&#x27;s turn ended there.<br/>Now provide another clue relating to some of your remaining team words and a list of the related target words. Remember to start your clue with &#x27;CLUE: &#x27;, put a new line, and start your comma-separated list of target words with &#x27;TARGETS: &#x27;. Notice: some words have been removed from the lists compared to previous requests.<br/><br/>Your remaining team words are: pin, duck, ice, palm, bat, phoenix, crown, undertaker, check.<br/>Remaining words for your opponent are: police, olympus, glass, server, hook, seal, pound.<br/>Remaining distractor words are: missile, apple, center, octopus, ball, church, lap, state.<br/>Remaining kill words are: .</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>CLUE: royalty  <br/>TARGETS: crown, phoenix, undertaker</p>
+    </div>
+
+    <div speaker="Game Master: clue" class="msg gm-gm">
+        <p>royalty</p>
+    </div>
+
+    <div speaker="Game Master: targets" class="msg gm-gm">
+        <p>[&#x27;crown&#x27;, &#x27;phoenix&#x27;, &#x27;undertaker&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;crown&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;phoenix&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;undertaker&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>The word bear was guessed but is an opponent word. Your turn ended there.<br/>Now provide another comma-separated list of at least 1 and up to 3 words from the following list of words that best relate or are most closely associated with the word &#x27;royalty&#x27;. Remember to start your answer with &#x27;GUESS: &#x27;. Notice: some words have been removed from the list compared to previous requests.<br/><br/>ice, crown, center, apple, missile, state, phoenix, undertaker, check, palm, police, bat, olympus, pound, church, hook, lap, duck, ball, octopus, pin, server, glass</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>GUESS: crown, phoenix, olympus</p>
+    </div>
+
+    <div speaker="Game Master: guesses" class="msg gm-gm">
+        <p>[&#x27;crown&#x27;, &#x27;phoenix&#x27;, &#x27;olympus&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;crown&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;crown&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;phoenix&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;phoenix&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;olympus&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: turn end after" class="msg gm-gm">
+        <p>olympus</p>
+    </div>
+
+    <div speaker="Game Master: opponent revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;pound&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: board status" class="msg gm-gm">
+        <p>{&#x27;hidden&#x27;: {&#x27;team&#x27;: [&#x27;pin&#x27;, &#x27;duck&#x27;, &#x27;ice&#x27;, &#x27;palm&#x27;, &#x27;bat&#x27;, &#x27;undertaker&#x27;, &#x27;check&#x27;], &#x27;innocent&#x27;: [&#x27;missile&#x27;, &#x27;apple&#x27;, &#x27;center&#x27;, &#x27;octopus&#x27;, &#x27;ball&#x27;, &#x27;church&#x27;, &#x27;lap&#x27;, &#x27;state&#x27;], &#x27;opponent&#x27;: [&#x27;police&#x27;, &#x27;glass&#x27;, &#x27;server&#x27;, &#x27;hook&#x27;], &#x27;assassin&#x27;: []}, &#x27;revealed&#x27;: {&#x27;team&#x27;: {&#x27;team&#x27;: [&#x27;crown&#x27;, &#x27;phoenix&#x27;], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;bear&#x27;, &#x27;olympus&#x27;], &#x27;assassin&#x27;: []}, &#x27;opponent&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;seal&#x27;, &#x27;pound&#x27;], &#x27;assassin&#x27;: []}}}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>The words crown, phoenix were guessed correctly. The word olympus was guessed but is an opponent word. Your teammate&#x27;s turn ended there.<br/>Now provide another clue relating to some of your remaining team words and a list of the related target words. Remember to start your clue with &#x27;CLUE: &#x27;, put a new line, and start your comma-separated list of target words with &#x27;TARGETS: &#x27;. Notice: some words have been removed from the lists compared to previous requests.<br/><br/>Your remaining team words are: pin, duck, ice, palm, bat, undertaker, check.<br/>Remaining words for your opponent are: police, glass, server, hook, pound.<br/>Remaining distractor words are: missile, apple, center, octopus, ball, church, lap, state.<br/>Remaining kill words are: .</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>CLUE: glide<br/>TARGETS: duck, bat, ice</p>
+    </div>
+
+    <div speaker="Game Master: clue" class="msg gm-gm">
+        <p>glide</p>
+    </div>
+
+    <div speaker="Game Master: targets" class="msg gm-gm">
+        <p>[&#x27;duck&#x27;, &#x27;bat&#x27;, &#x27;ice&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;duck&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;bat&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;ice&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>The words crown, phoenix were guessed correctly. The word olympus was guessed but is an opponent word. Your turn ended there.<br/>Now provide another comma-separated list of at least 1 and up to 3 words from the following list of words that best relate or are most closely associated with the word &#x27;glide&#x27;. Remember to start your answer with &#x27;GUESS: &#x27;. Notice: some words have been removed from the list compared to previous requests.<br/><br/>ice, center, apple, missile, state, undertaker, check, palm, police, bat, church, hook, lap, duck, ball, octopus, pin, server, glass</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>GUESS: ice, bat, duck</p>
+    </div>
+
+    <div speaker="Game Master: guesses" class="msg gm-gm">
+        <p>[&#x27;ice&#x27;, &#x27;bat&#x27;, &#x27;duck&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;ice&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;ice&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;bat&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;bat&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;duck&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;duck&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: opponent revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;hook&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: board status" class="msg gm-gm">
+        <p>{&#x27;hidden&#x27;: {&#x27;team&#x27;: [&#x27;pin&#x27;, &#x27;palm&#x27;, &#x27;undertaker&#x27;, &#x27;check&#x27;], &#x27;innocent&#x27;: [&#x27;missile&#x27;, &#x27;apple&#x27;, &#x27;center&#x27;, &#x27;octopus&#x27;, &#x27;ball&#x27;, &#x27;church&#x27;, &#x27;lap&#x27;, &#x27;state&#x27;], &#x27;opponent&#x27;: [&#x27;police&#x27;, &#x27;glass&#x27;, &#x27;server&#x27;], &#x27;assassin&#x27;: []}, &#x27;revealed&#x27;: {&#x27;team&#x27;: {&#x27;team&#x27;: [&#x27;crown&#x27;, &#x27;phoenix&#x27;, &#x27;ice&#x27;, &#x27;bat&#x27;, &#x27;duck&#x27;], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;bear&#x27;, &#x27;olympus&#x27;], &#x27;assassin&#x27;: []}, &#x27;opponent&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;seal&#x27;, &#x27;pound&#x27;, &#x27;hook&#x27;], &#x27;assassin&#x27;: []}}}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>The words ice, bat, duck were guessed correctly. Your teammate&#x27;s turn ended there.<br/>Now provide another clue relating to some of your remaining team words and a list of the related target words. Remember to start your clue with &#x27;CLUE: &#x27;, put a new line, and start your comma-separated list of target words with &#x27;TARGETS: &#x27;. Notice: some words have been removed from the lists compared to previous requests.<br/><br/>Your remaining team words are: pin, palm, undertaker, check.<br/>Remaining words for your opponent are: police, glass, server, hook.<br/>Remaining distractor words are: missile, apple, center, octopus, ball, church, lap, state.<br/>Remaining kill words are: .</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>CLUE: tropical<br/>TARGETS: palm, pin, undertaker</p>
+    </div>
+
+    <div speaker="Game Master: clue" class="msg gm-gm">
+        <p>tropical</p>
+    </div>
+
+    <div speaker="Game Master: targets" class="msg gm-gm">
+        <p>[&#x27;palm&#x27;, &#x27;pin&#x27;, &#x27;undertaker&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;palm&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;pin&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;undertaker&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>The words ice, bat, duck were guessed correctly. Your turn ended there.<br/>Now provide another comma-separated list of at least 1 and up to 3 words from the following list of words that best relate or are most closely associated with the word &#x27;tropical&#x27;. Remember to start your answer with &#x27;GUESS: &#x27;. Notice: some words have been removed from the list compared to previous requests.<br/><br/>center, apple, missile, state, undertaker, check, palm, police, church, lap, ball, octopus, pin, server, glass</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>GUESS: palm, state, octopus</p>
+    </div>
+
+    <div speaker="Game Master: guesses" class="msg gm-gm">
+        <p>[&#x27;palm&#x27;, &#x27;state&#x27;, &#x27;octopus&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;palm&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;palm&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;state&#x27;, &#x27;assignment&#x27;: &#x27;innocent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: turn end after" class="msg gm-gm">
+        <p>state</p>
+    </div>
+
+    <div speaker="Game Master: opponent revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;police&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: board status" class="msg gm-gm">
+        <p>{&#x27;hidden&#x27;: {&#x27;team&#x27;: [&#x27;pin&#x27;, &#x27;undertaker&#x27;, &#x27;check&#x27;], &#x27;innocent&#x27;: [&#x27;missile&#x27;, &#x27;apple&#x27;, &#x27;center&#x27;, &#x27;octopus&#x27;, &#x27;ball&#x27;, &#x27;church&#x27;, &#x27;lap&#x27;], &#x27;opponent&#x27;: [&#x27;glass&#x27;, &#x27;server&#x27;], &#x27;assassin&#x27;: []}, &#x27;revealed&#x27;: {&#x27;team&#x27;: {&#x27;team&#x27;: [&#x27;crown&#x27;, &#x27;phoenix&#x27;, &#x27;ice&#x27;, &#x27;bat&#x27;, &#x27;duck&#x27;, &#x27;palm&#x27;], &#x27;innocent&#x27;: [&#x27;state&#x27;], &#x27;opponent&#x27;: [&#x27;bear&#x27;, &#x27;olympus&#x27;], &#x27;assassin&#x27;: []}, &#x27;opponent&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;seal&#x27;, &#x27;pound&#x27;, &#x27;hook&#x27;, &#x27;police&#x27;], &#x27;assassin&#x27;: []}}}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>The word palm was guessed correctly. The word state was guessed but is an innocent word. Your teammate&#x27;s turn ended there.<br/>Now provide another clue relating to some of your remaining team words and a list of the related target words. Remember to start your clue with &#x27;CLUE: &#x27;, put a new line, and start your comma-separated list of target words with &#x27;TARGETS: &#x27;. Notice: some words have been removed from the lists compared to previous requests.<br/><br/>Your remaining team words are: pin, undertaker, check.<br/>Remaining words for your opponent are: police, glass, server.<br/>Remaining distractor words are: missile, apple, center, octopus, ball, church, lap.<br/>Remaining kill words are: .</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>CLUE: verify<br/>TARGETS: check, pin</p>
+    </div>
+
+    <div speaker="Game Master: clue" class="msg gm-gm">
+        <p>verify</p>
+    </div>
+
+    <div speaker="Game Master: targets" class="msg gm-gm">
+        <p>[&#x27;check&#x27;, &#x27;pin&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;check&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;pin&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>The word palm was guessed correctly. The word state was guessed but is an innocent word. Your turn ended there.<br/>Now provide another comma-separated list of at least 1 and up to 2 words from the following list of words that best relate or are most closely associated with the word &#x27;verify&#x27;. Remember to start your answer with &#x27;GUESS: &#x27;. Notice: some words have been removed from the list compared to previous requests.<br/><br/>center, apple, missile, undertaker, check, church, lap, ball, octopus, pin, server, glass</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>GUESS: check, pin</p>
+    </div>
+
+    <div speaker="Game Master: guesses" class="msg gm-gm">
+        <p>[&#x27;check&#x27;, &#x27;pin&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;check&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;check&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;pin&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;pin&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: opponent revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;server&#x27;, &#x27;assignment&#x27;: &#x27;opponent&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: board status" class="msg gm-gm">
+        <p>{&#x27;hidden&#x27;: {&#x27;team&#x27;: [&#x27;undertaker&#x27;], &#x27;innocent&#x27;: [&#x27;missile&#x27;, &#x27;apple&#x27;, &#x27;center&#x27;, &#x27;octopus&#x27;, &#x27;ball&#x27;, &#x27;church&#x27;, &#x27;lap&#x27;], &#x27;opponent&#x27;: [&#x27;glass&#x27;], &#x27;assassin&#x27;: []}, &#x27;revealed&#x27;: {&#x27;team&#x27;: {&#x27;team&#x27;: [&#x27;crown&#x27;, &#x27;phoenix&#x27;, &#x27;ice&#x27;, &#x27;bat&#x27;, &#x27;duck&#x27;, &#x27;palm&#x27;, &#x27;check&#x27;, &#x27;pin&#x27;], &#x27;innocent&#x27;: [&#x27;state&#x27;], &#x27;opponent&#x27;: [&#x27;bear&#x27;, &#x27;olympus&#x27;], &#x27;assassin&#x27;: []}, &#x27;opponent&#x27;: {&#x27;team&#x27;: [], &#x27;innocent&#x27;: [], &#x27;opponent&#x27;: [&#x27;seal&#x27;, &#x27;pound&#x27;, &#x27;hook&#x27;, &#x27;police&#x27;, &#x27;server&#x27;], &#x27;assassin&#x27;: []}}}</p>
+    </div>
+
+    <div speaker="Game Master to Player 1" class="msg gm-a">
+        <p>The words check, pin were guessed correctly. Your teammate&#x27;s turn ended there.<br/>Now provide another clue relating to some of your remaining team words and a list of the related target words. Remember to start your clue with &#x27;CLUE: &#x27;, put a new line, and start your comma-separated list of target words with &#x27;TARGETS: &#x27;. Notice: some words have been removed from the lists compared to previous requests.<br/><br/>Your remaining team words are: undertaker.<br/>Remaining words for your opponent are: glass, server.<br/>Remaining distractor words are: missile, apple, center, octopus, ball, church, lap.<br/>Remaining kill words are: .</p>
+    </div>
+
+    <div speaker="Player 1 to Game Master" class="msg a-gm">
+        <p>CLUE: funeral<br/>TARGETS: undertaker</p>
+    </div>
+
+    <div speaker="Game Master: clue" class="msg gm-gm">
+        <p>funeral</p>
+    </div>
+
+    <div speaker="Game Master: targets" class="msg gm-gm">
+        <p>[&#x27;undertaker&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: word targeted" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;undertaker&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master to Player 2" class="msg gm-b">
+        <p>The words check, pin were guessed correctly. Your turn ended there.<br/>Now provide another comma-separated list of at least 1 and up to 1 words from the following list of words that best relate or are most closely associated with the word &#x27;funeral&#x27;. Remember to start your answer with &#x27;GUESS: &#x27;. Notice: some words have been removed from the list compared to previous requests.<br/><br/>center, apple, missile, undertaker, church, lap, ball, octopus, glass</p>
+    </div>
+
+    <div speaker="Player 2 to Game Master" class="msg b-gm">
+        <p>GUESS: undertaker</p>
+    </div>
+
+    <div speaker="Game Master: guesses" class="msg gm-gm">
+        <p>[&#x27;undertaker&#x27;]</p>
+    </div>
+
+    <div speaker="Game Master: team revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;undertaker&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+    <div speaker="Game Master: target revealed" class="msg gm-gm">
+        <p>{&#x27;word&#x27;: &#x27;undertaker&#x27;, &#x27;assignment&#x27;: &#x27;team&#x27;}</p>
+    </div>
+
+</div>
+
+</body>
+</html>

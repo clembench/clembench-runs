@@ -4,6 +4,7 @@ import json
 from tqdm import tqdm
 from datetime import datetime
 import logging
+import re  # Add this import at the top of your file if not already present
 
 logging.basicConfig(filename='latency.log', level=logging.INFO)
 
@@ -16,10 +17,11 @@ for version in versions:
     models = os.listdir(version)
     models = [m for m in models if os.path.isdir(os.path.join(version, m))]
     for model in tqdm(models, desc=f"Calculating latencies for version - {version}"):
-        # Split model names - for Player 1 and Player 2
-        # Note - Skip one of the players when programmatic
-        model1_name = model.split('--')[0].split('-t')[0] # Split by -t to handle different temperatures
-        model2_name = model.split('--')[1].split('-t')[0]
+        # Use regex to split model names and handle temperature values
+        match = re.match(r"(.+?)-t\d\.\d--(.+?)-t\d\.\d", model)
+        if match:
+            model1_name = match.group(1)
+            model2_name = match.group(2)
         if model1_name not in latencies:
             latencies[model1_name] = {'time': 0.0, 'turns': 0}
         if model2_name not in latencies:
@@ -47,16 +49,18 @@ for version in versions:
                         player1 = True
                         player2 = True
                         # Set a false flag when a player is Programmatic
-                        # Skip latency calculation for this player
                         # Check for "Player_1" or "Player 1" keys
-                        if "Player_1" in players.keys():
+                        if "Player_1" in players:
                             if "programmatic" in players['Player_1'].lower():
                                 player1 = False
-                            if "programmatic" in players['Player_2'].lower():
-                                player2 = False
-                        else:
+                        elif "Player 1" in players:
                             if "programmatic" in players['Player 1'].lower():
                                 player1 = False
+
+                        if "Player_2" in players:
+                            if "programmatic" in players['Player_2'].lower():
+                                player2 = False
+                        elif "Player 2" in players:
                             if "programmatic" in players['Player 2'].lower():
                                 player2 = False 
 
@@ -65,7 +69,7 @@ for version in versions:
                         for turn in turns:
                             for t in turn:
                                 if t['from'] == "GM" and ("1" in t['to'] or "2" in t['to']):
-                                    #Most recent message from GM to Player 1 or Player 2
+                                    # Most recent message from GM to Player 1 or Player 2
                                     start_time = datetime.fromisoformat(t['timestamp'])
                                 elif "1" in t['from'] and t['to'] == "GM":
                                     # Message from Player 1 to GM
@@ -73,7 +77,6 @@ for version in versions:
                                     # Check if Player 1 is programmatic or not
                                     if player1:
                                         latency = end_time - start_time
-                                        # latency_ms = latency.total_seconds()*1000
                                         # Save latency in seconds
                                         latency = latency.total_seconds()
                                         latencies[model1_name]['time'] += latency
@@ -84,7 +87,6 @@ for version in versions:
                                     # Check if Player 2 is programmatic or not
                                     if player2:
                                         latency = end_time - start_time
-                                        # latency_ms = latency.total_seconds()*1000
                                         # Save latency in seconds
                                         latency = latency.total_seconds()
                                         latencies[model2_name]['time'] += latency
@@ -99,11 +101,19 @@ for version in versions:
 
     for k in model_keys:
         model_name.append(k)
-        model_latency.append(latencies[k]['time']/latencies[k]['turns'])
+        try:
+            # Attempt to calculate latency
+            latency = latencies[k]['time'] / latencies[k]['turns']
+        except ZeroDivisionError:
+            # Log an error message if division by zero occurs
+            logging.error(f"Division by zero for model: {k}. Time: {latencies[k]['time']}, Turns: {latencies[k]['turns']}")
+            latency = float('inf')  # or set to a default value like 0 or None
+        model_latency.append(latency)
+
     csv_data = {
         'model': model_name,
         'latency': model_latency    
-        }
+    }
     latecy_df = pd.DataFrame(csv_data)
     if not os.path.exists(os.path.join('Addenda', 'Latency')):
         os.makedirs(os.path.join('Addenda', 'Latency'))
