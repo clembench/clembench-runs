@@ -46,9 +46,9 @@ for version in versions:
             model1_name = match.group(1)
             model2_name = match.group(2)
         if model1_name not in tokens:
-            tokens[model1_name] = {'input_tokens': 0.0, 'output_tokens': 0.0, 'message_count':0}
+            tokens[model1_name] = {'input_tokens': 0.0, 'output_tokens': 0.0, 'input_message_count':0, 'output_message_count':0}
         if model2_name not in tokens:
-            tokens[model2_name] = {'input_tokens': 0.0, 'output_tokens': 0.0, 'message_count':0}
+            tokens[model2_name] = {'input_tokens': 0.0, 'output_tokens': 0.0, 'input_message_count':0, 'output_message_count':0}
 
         games = os.listdir(os.path.join(version, model))
         games = [g for g in games if os.path.isdir(os.path.join(version, model, g))]
@@ -89,52 +89,62 @@ for version in versions:
                                 player2 = False 
 
                         turns = json_data['turns']
-                          
+
+                        last_input_tokens = 0
                         for turn in turns:
                             for t in turn:
                                 if t['from'] == "GM" and ("1" in t['to'] or "2" in t['to']):
                                     # Most recent message from GM to Player 1 or Player 2
                                     input_tokens = count_tokens(t)
+                                    last_input_tokens += input_tokens
+                                    tokens[model1_name]['input_tokens'] += last_input_tokens
+                                    tokens[model2_name]['input_message_count'] += 1
                                 elif "1" in t['from'] and t['to'] == "GM" and player1:
                                     # Message from Player 1 to GM
                                     output_tokens = count_tokens(t)
-
-                                    tokens[model1_name]['input_tokens'] += input_tokens
+                                    last_input_tokens += output_tokens
                                     tokens[model1_name]['output_tokens'] += output_tokens
-                                    tokens[model1_name]['message_count'] += 1
+                                    tokens[model1_name]['output_message_count'] += 1
                                      
                                 elif "2" in t['from'] and t['to'] == "GM" and player2:
                                     # Message from Player 2 to GM
                                     output_tokens = count_tokens(t)
-
-                                    tokens[model2_name]['input_tokens'] += input_tokens
+                                    last_input_tokens += output_tokens
                                     tokens[model2_name]['output_tokens'] += output_tokens
-                                    tokens[model2_name]['message_count'] += 1
+                                    tokens[model2_name]['output_message_count'] += 1
                     else:
                         logging.warning(f"Interaction file missing for {interaction_json_path}")
                         
     
     model_name = []
-    model_input_tokens = []
-    model_output_tokens = []
+    model_avg_input_tokens = []
+    model_avg_output_tokens = []
+    model_total_input_tokens = []
+    model_total_output_tokens = []
     model_keys = tokens.keys()
 
+    avg_input_tokens = 0
+    avg_output_tokens = 0
     for k in model_keys:
         model_name.append(k)
         try:
-            avg_input_tokens = int(tokens[k]['input_tokens'] / tokens[k]['message_count'])
-            avg_output_tokens = int(tokens[k]['output_tokens'] / tokens[k]['message_count'])
+            avg_input_tokens = int(tokens[k]['input_tokens'] / tokens[k]['input_message_count'])
+            avg_output_tokens = int(tokens[k]['output_tokens'] / tokens[k]['output_message_count'])
         except ZeroDivisionError:
-            logging.error(f"Division by zero for model: {k}. Input: {tokens[k]['input_tokens']}, Output: {tokens[k]['output_tokens']}, Messages: {tokens[k]['message_count']}")
+            print(f"ZeroDivisionError for model {k} - input_message_count: {tokens[k]['input_message_count']}, output_message_count: {tokens[k]['output_message_count']}")
 
-        model_input_tokens.append(avg_input_tokens)
-        model_output_tokens.append(avg_output_tokens)
+        model_avg_input_tokens.append(avg_input_tokens)
+        model_avg_output_tokens.append(avg_output_tokens)
+        model_total_input_tokens.append(round(tokens[k]['input_tokens']/1000000,2))
+        model_total_output_tokens.append(round(tokens[k]['output_tokens']/1000000, 2))
 
 
     csv_data = {
         'model': model_name,
-        'input': model_input_tokens,
-        'output': model_output_tokens 
+        'avg_input': model_avg_input_tokens,
+        'avg_output': model_avg_output_tokens,
+        'total_input (mln)': model_total_input_tokens,
+        'total_output (mln)': model_total_output_tokens
     }
     tokens_df = pd.DataFrame(csv_data)
     if not os.path.exists(os.path.join('Addenda', 'Tokens')):
