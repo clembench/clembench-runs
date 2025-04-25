@@ -141,10 +141,10 @@ for version in versions:
 
     csv_data = {
         'model': model_name,
-        'avg_input': model_avg_input_tokens,
-        'avg_output': model_avg_output_tokens,
-        'total_input (mln)': model_total_input_tokens,
-        'total_output (mln)': model_total_output_tokens
+        'avg_in (per turn)': model_avg_input_tokens,
+        'avg_out (per turn)': model_avg_output_tokens,
+        'total_in (M token)': model_total_input_tokens,
+        'total_out (M token)': model_total_output_tokens
     }
     tokens_df = pd.DataFrame(csv_data)
     if not os.path.exists(os.path.join('Addenda', 'Tokens')):
