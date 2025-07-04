@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repository Browser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 20px;
+        }
+
+        .header h1 {
+            margin-bottom: 15px;
+            color: #f0f6fc;
+        }
+
+        .repo-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .repo-input input {
+            flex: 1;
+            padding: 10px 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 14px;
+        }
+
+        .repo-input input:focus {
+            outline: none;
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.15);
+        }
+
+        .repo-input button {
+            padding: 10px 16px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .repo-input button:hover:not(:disabled) {
+            background: #2ea043;
+        }
+
+        .repo-input button:disabled {
+            background: #484f58;
+            cursor: not-allowed;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .file-browser {
+            width: 40%;
+            background: #0d1117;
+            border-right: 1px solid #30363d;
+            overflow-y: auto;
+        }
+
+        .preview-pane {
+            flex: 1;
+            background: #f6f8fa;
+            position: relative;
+        }
+
+        .file-list {
+            padding: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            margin-bottom: 2px;
+        }
+
+        .file-item:hover {
+            background: #21262d;
+        }
+
+        .file-item.folder {
+            color: #7d8590;
+        }
+
+        .file-item.html-file {
+            color: #f85149;
+        }
+
+        .file-item.selected {
+            background: #1f6feb;
+            color: white;
+        }
+
+        .file-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .breadcrumb {
+            padding: 15px 20px;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            font-size: 14px;
+            color: #7d8590;
+        }
+
+        .breadcrumb a {
+            color: #58a6ff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #7d8590;
+        }
+
+        .error {
+            padding: 20px;
+            color: #f85149;
+            background: #0d1117;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .preview-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #656d76;
+            font-size: 16px;
+            background: #f6f8fa;
+        }
+
+        .spinner {
+            border: 2px solid #30363d;
+            border-top: 2px solid #58a6ff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🐙 GitHub Repository Browser</h1>
+        <div class="repo-input">
+            <input 
+                type="text" 
+                id="repoUrl" 
+                placeholder="Enter GitHub repository URL (e.g., https://github.com/user/repo)"
+                value=""
+            >
+            <button id="loadRepo">Browse Repository</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="file-browser">
+            <div class="breadcrumb" id="breadcrumb" style="display: none;">
+                <span id="breadcrumbPath"></span>
+            </div>
+            <div class="file-list" id="fileList">
+                <div class="preview-placeholder">
+                    Enter a GitHub repository URL above to start browsing
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-pane">
+            <div class="preview-placeholder" id="previewPlaceholder">
+                Click on an HTML file to preview it here
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GitHubBrowser {
+            constructor() {
+                this.repoOwner = '';
+                this.repoName = '';
+                this.currentPath = '';
+                this.selectedFile = null;
+                
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('loadRepo').addEventListener('click', () => this.loadRepository());
+                document.getElementById('repoUrl').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.loadRepository();
+                });
+            }
+
+            parseGitHubUrl(url) {
+                const match = url.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+                if (match) {
+                    return {
+                        owner: match[1],
+                        repo: match[2].replace(/\.git$/, '')
+                    };
+                }
+                return null;
+            }
+
+            async loadRepository() {
+                const url = document.getElementById('repoUrl').value.trim();
+                if (!url) return;
+
+                const parsed = this.parseGitHubUrl(url);
+                if (!parsed) {
+                    this.showError('Invalid GitHub repository URL');
+                    return;
+                }
+
+                this.repoOwner = parsed.owner;
+                this.repoName = parsed.repo;
+                this.currentPath = '';
+
+                await this.loadDirectoryContents('');
+            }
+
+            async loadDirectoryContents(path) {
+                this.showLoading();
+                this.currentPath = path;
+
+                try {
+                    const apiUrl = `https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${path}`;
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Repository not found or API limit exceeded`);
+                    }
+
+                    const contents = await response.json();
+                    this.renderFileList(contents);
+                    this.renderBreadcrumb();
+                } catch (error) {
+                    this.showError(`Error loading repository: ${error.message}`);
+                }
+            }
+
+            renderFileList(contents) {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+
+                // Sort: directories first, then files
+                const sorted = contents.sort((a, b) => {
+                    if (a.type === 'dir' && b.type !== 'dir') return -1;
+                    if (a.type !== 'dir' && b.type === 'dir') return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+                sorted.forEach(item => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    
+                    if (item.type === 'dir') {
+                        fileItem.classList.add('folder');
+                        fileItem.innerHTML = `
+                            <span class="file-icon">📁</span>
+                            <span>${item.name}</span>
+                        `;
+                        fileItem.addEventListener('click', () => {
+                            this.loadDirectoryContents(item.path);
+                        });
+                    } else {
+                        const isHtml = item.name.toLowerCase().endsWith('.html') || item.name.toLowerCase().endsWith('.htm');
+                        if (isHtml) {
+                            fileItem.classList.add('html-file');
+                        }
+                        
+                        fileItem.innerHTML = `
+                            <span class="file-icon">${this.getFileIcon(item.name)}</span>
+                            <span>${item.name}</span>
+                        `;
+
+                        if (isHtml) {
+                            fileItem.addEventListener('click', () => {
+                                this.previewHtmlFile(item);
+                                this.selectFile(fileItem);
+                            });
+                        }
+                    }
+
+                    fileList.appendChild(fileItem);
+                });
+            }
+
+            getFileIcon(filename) {
+                const ext = filename.toLowerCase().split('.').pop();
+                const icons = {
+                    'html': '🌐',
+                    'htm': '🌐',
+                    'css': '🎨',
+                    'js': '⚡',
+                    'json': '📋',
+                    'md': '📝',
+                    'txt': '📄',
+                    'png': '🖼️',
+                    'jpg': '🖼️',
+                    'jpeg': '🖼️',
+                    'gif': '🖼️',
+                    'svg': '🖼️'
+                };
+                return icons[ext] || '📄';
+            }
+
+            selectFile(fileElement) {
+                // Remove previous selection
+                document.querySelectorAll('.file-item.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                // Add selection to current file
+                fileElement.classList.add('selected');
+            }
+
+            previewHtmlFile(file) {
+                const previewPane = document.querySelector('.preview-pane');
+                const rawUrl = file.download_url;
+                const previewUrl = `https://htmlpreview.github.io/?${rawUrl}`;
+                
+                previewPane.innerHTML = `
+                    <iframe class="preview-iframe" src="${previewUrl}"></iframe>
+                `;
+            }
+
+            renderBreadcrumb() {
+                const breadcrumb = document.getElementById('breadcrumb');
+                const breadcrumbPath = document.getElementById('breadcrumbPath');
+                
+                if (this.currentPath === '') {
+                    breadcrumb.style.display = 'none';
+                    return;
+                }
+
+                breadcrumb.style.display = 'block';
+                const pathParts = this.currentPath.split('/');
+                const breadcrumbHtml = [
+                    `<a onclick="browser.loadDirectoryContents('')">${this.repoName}</a>`
+                ];
+
+                let currentPath = '';
+                pathParts.forEach((part, index) => {
+                    currentPath += (index === 0 ? '' : '/') + part;
+                    if (index === pathParts.length - 1) {
+                        breadcrumbHtml.push(part);
+                    } else {
+                        breadcrumbHtml.push(`<a onclick="browser.loadDirectoryContents('${currentPath}')">${part}</a>`);
+                    }
+                });
+
+                breadcrumbPath.innerHTML = breadcrumbHtml.join(' / ');
+            }
+
+            showLoading() {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading repository contents...
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = `
+                    <div class="error">
+                        ❌ ${message}
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize the browser
+        const browser = new GitHubBrowser();
+
+        // Set a default example repository
+        document.getElementById('repoUrl').value = 'https://github.com/clembench/clembench-runs';
+    </script>
+</body>
+</html>
