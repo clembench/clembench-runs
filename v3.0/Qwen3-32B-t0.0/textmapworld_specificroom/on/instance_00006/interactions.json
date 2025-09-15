@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "game_name": "textmapworld_specificroom",
+    "experiment_name": "on",
+    "game_id": 6,
+    "results_folder": "Qwen3-32B-t0.0",
+    "clem_version": "3.3.2"
+  },
+  "player_models": {
+    "0": {
+      "model_name": "Qwen3-32B",
+      "backend": "huggingface_local",
+      "context_size": "32K",
+      "huggingface_id": "Qwen/Qwen3-32B",
+      "languages": [
+        "en"
+      ],
+      "license": {
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0"
+      },
+      "lookup_source": "packaged",
+      "model_config": {
+        "premade_chat_template": true,
+        "eos_to_cull": "<\\|im_end\\|>",
+        "padding_side": "left"
+      },
+      "open_weight": true,
+      "parameters": "30B",
+      "release_date": "2025-04-28"
+    }
+  },
+  "players": {
+    "GM": {
+      "game_role": "Game Master",
+      "model_name": "programmatic"
+    },
+    "Player 1": {
+      "game_role": "PathGuesser",
+      "model_name": "Qwen3-32B"
+    },
+    "Player 2": {
+      "game_role": "PathDescriber",
+      "model_name": "programmatic"
+    }
+  },
+  "turns": [
+    [
+      {
+        "from": "GM",
+        "to": "Player 1",
+        "timestamp": "2025-08-23T07:33:41.581786",
+        "action": {
+          "type": "send message",
+          "content": "Please help me with the following task. The goal is to explore rooms and find the target room. In each room, you need to decide the direction to go in. Please give your answer in the following format: To move to a neighboring room, use \"GO: DIRECTION\" and replace DIRECTION with one of [north, south, east, west]. Most importantly, once we have found the target room, answer with \"DONE\" instead. Omit any other text.\nHere is an example:\nThe target room is a Bedroom. You are in the Kitchen. Currently available directions: south, west. What is your next instruction?\nGO: west\nYou have made a step and entered a Lobby. Currently available directions: east, north. What is your next instruction?\nGO: north\n...\nYou have made a step and entered a Bedroom. Currently available directions: south. What is your next instruction?\nDONE\nLet us start. The target room is Bathroom. You are in the Bathroom. Currently available directions: south, west. What is your next instruction?\n",
+          "label": "context"
+        }
+      },
+      {
+        "from": "Player 1",
+        "to": "GM",
+        "timestamp": "2025-08-23T07:34:00.021596",
+        "action": {
+          "type": "get message",
+          "content": "<think>\nOkay, let's see. The target room is the Bathroom, and I'm already in the Bathroom. Hmm, that's interesting. So the task is to find the target room, but I'm already there. The available directions are south and west. But since I'm in the target room, I should just answer DONE, right? Wait, the example shows that when they entered the target room, they answered DONE. So even if there are available directions, once you're in the target, you just say DONE. Let me make sure. The user's instruction says once we have found the target room, answer with DONE instead. So regardless of the directions, if the current room is the target, just say DONE. So here, the current room is Bathroom, which is the target. So the answer is DONE.\n</think>\n\nDONE",
+          "label": "response"
+        }
+      },
+      {
+        "from": "GM",
+        "to": "GM",
+        "timestamp": "2025-08-23T07:34:00.021733",
+        "action": {
+          "type": "aborted",
+          "content": "abort game"
+        }
+      }
+    ]
+  ]
+}
