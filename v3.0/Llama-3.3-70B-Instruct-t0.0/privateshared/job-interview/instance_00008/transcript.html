@@ -1,0 +1,875 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <style>
+        /* This CSS is an adaptation from the answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {background-color: rgb(157, 152, 150);}
+
+  /* dialogue header */
+
+.top-info {
+  text-align: center;
+  --rad: 20px;
+  --rad-sm: 3px;
+  font: 20px/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: #3f3e3e;
+  color: #fff;
+}
+
+.chat {
+    --rad: 20px;
+    --rad-sm: 3px;
+    font: 16px/1.5 sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+  }
+  
+  .msg {
+    position: relative;
+    max-width: 75%;
+    padding: 7px 15px;
+    margin-bottom: 30px;
+  }
+  
+  /* 5 levels, two players to/from game master and meta messages form game master */
+
+  .msg.b-gm {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #874aaf;
+    color: #fff;
+    margin-left: 60%;
+  }
+
+  .msg.a-gm {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #f39109;
+    color: #fff;
+    margin-right: 60%;
+  }
+  
+  .msg.gm-a {
+    border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+    background: #c4c3c3;    
+    color: #0c0c0c;
+    margin-right: 40%;
+    margin-left: 20%;
+  }
+
+  .msg.gm-b {
+    border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+    background: #c4c3c3;
+    color: #0c0c0c;
+    margin-right: 20%;
+    margin-left: 40%;
+  }
+
+  .msg.gm-gm {
+    background: #f1f1f1;
+    color: #373636;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 0.8rem;
+
+  }
+  
+  /* speaker labels */
+  
+  .msg::before {
+    content: attr(speaker);
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 100%;
+    color: #888;
+    white-space: nowrap;
+
+  }
+  
+  .msg.b-gm::before {
+    right: 15px;
+  }
+
+  .msg.gm-a::before {
+    right: 15px;
+  }
+
+  .msg.a-gm::before {
+    left: 15px;
+  }
+
+  .msg.gm-b::before {
+    left: 15px;
+  }
+
+  .msg.gm-gm::before {
+    left: 0px;
+  }
+
+.game-round {
+  padding: 20px 0 20px 0;
+  background-color: #f0f8ff; /* light background for content */
+  position: relative; /* Important to position the badge */
+  border-radius: 10px;
+  margin: 10px 0 10px 0;
+  max-width: 800px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge in top-right corner */
+.game-round::before {
+  content: "Round " attr(data-round);
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #c4c3c3;
+  padding: 0px 2px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for job-interview, episode 8 with Llama-3.3-70B-Instruct-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+<div class="game-round" data-round="0">
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="">
+        <p>You are an applicant in a job interview. Here is a description of your CV:<br/><br/>WHAT: Job Application<br/>BACHELOR: Music<br/>INDUSTRY-EXPERIENCE: Five years<br/>HIGHEST-EDUCATION: Master<br/>OTHER-SKILLS: Leadership<br/>AVAILABILITY: From December 10<br/><br/>The recruiter does not know about it yet. <br/><br/>Questions from the recruiter will start with RECRUITER. Please reply in the form: ANSWER: &lt;one sentence&gt;<br/><br/>I will also ask you questions. These questions will start with ME: . Please answer these questions with: ASIDE: &lt;one sentence&gt;<br/><br/>Important: Give short, direct answers!<br/><br/>Let us start.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="">
+        <p>Ok.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  If I asked the interviewer what area you studied, would he or she know the answer? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the recruiter already know how long you have worked in the industry? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you informed the recruiter about your latest academic degree? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you informed the interviewer about your other skills? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  If I asked the interviewer when you are able to start working, would he or she know the answer? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (Questioner)" class="msg gm-b" style="">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 (Questioner) to GM (Game Master)" class="msg b-gm" style="">
+        <p>Do you have any other skills?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="">
+        <p>RECRUITER: Do you have any other skills?</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="">
+        <p>ANSWER: Yes, I have leadership skills in addition to my music background.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Value for BACHELOR anticipated; ground truth turn updated from 4 to 0.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  If I asked the interviewer what area you studied, would he or she know the answer? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the recruiter already know how long you have worked in the industry? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you informed the recruiter about your latest academic degree? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you told the interviewer about your extra skills? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the interviewer already know your preferred starting date? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+</div><div class="game-round" data-round="1">
+    <div speaker="GM (Game Master) to Player 2 (Questioner)" class="msg gm-b" style="">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 (Questioner) to GM (Game Master)" class="msg b-gm" style="">
+        <p>For how long have you been working in the industry?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="">
+        <p>RECRUITER: For how long have you been working in the industry?</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="">
+        <p>ANSWER: I have five years of industry experience.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  If I asked the interviewer what area you studied, would he or she know the answer? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Has the interviewer been informed about your time of industry experience? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Do you think the recruiter knows your latest academic level? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the recruiter know your additional skills? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  If I asked the interviewer when you are able to start working, would he or she know the answer? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+</div><div class="game-round" data-round="2">
+    <div speaker="GM (Game Master) to Player 2 (Questioner)" class="msg gm-b" style="">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 (Questioner) to GM (Game Master)" class="msg b-gm" style="">
+        <p>When would you be able to start working here?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="">
+        <p>RECRUITER: When would you be able to start working here?</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="">
+        <p>ANSWER: I am available to start working from December 10.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  If I asked the interviewer what area you studied, would he or she know the answer? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the recruiter know about the years of your industry experience? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you informed the recruiter about your latest academic degree? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you told the interviewer about your extra skills? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you told the interviewer when you want to start? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+</div><div class="game-round" data-round="3">
+    <div speaker="GM (Game Master) to Player 2 (Questioner)" class="msg gm-b" style="">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 (Questioner) to GM (Game Master)" class="msg b-gm" style="">
+        <p>What is your lastest education degree?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="">
+        <p>RECRUITER: What is your lastest education degree?</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="">
+        <p>ANSWER: My highest education degree is a Master&#x27;s degree.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Has the recruiter been informed about the field of your bachelor? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the recruiter know about the years of your industry experience? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you informed the recruiter about your latest academic degree? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Do you think the recruiter knows what other skills you have? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you told the interviewer when you want to start? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+</div><div class="game-round" data-round="4">
+    <div speaker="GM (Game Master) to Player 2 (Questioner)" class="msg gm-b" style="">
+        <p>What is the next request?</p>
+    </div>
+
+    <div speaker="Player 2 (Questioner) to GM (Game Master)" class="msg b-gm" style="">
+        <p>What did you study in your bachelor?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="">
+        <p>RECRUITER: What did you study in your bachelor?</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="">
+        <p>ANSWER: I studied Music for my Bachelor&#x27;s degree.</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Slot filled: True</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you told the recruiter about your bachelor course? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for BACHELOR valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  If I asked the recruiter how long you have been working in the industry, would he or she know the answer? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for INDUSTRY-EXPERIENCE valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Have you informed the recruiter about your highest academic degree? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: Yes.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>yes</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for HIGHEST-EDUCATION valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is correct.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the recruiter know your additional skills? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No.</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for OTHER-SKILLS valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (Answerer)" class="msg gm-a" style="border: dashed">
+        <p>ME:  Does the interviewer already know your preferred starting date? Answer this question with yes or no and then stop.</p>
+    </div>
+
+    <div speaker="Player 1 (Answerer) to GM (Game Master)" class="msg a-gm" style="border: dashed">
+        <p>ASIDE: No</p>
+    </div>
+
+    <div speaker="Game Master: parse" class="msg gm-gm" style="">
+        <p>no</p>
+    </div>
+
+    <div speaker="Game Master: metadata" class="msg gm-gm" style="">
+        <p>Answer for AVAILABILITY valid after 1 tries.</p>
+    </div>
+
+    <div speaker="Game Master: check" class="msg gm-gm" style="">
+        <p>Answer is incorrect.</p>
+    </div>
+
+    <div speaker="Game Master: end" class="msg gm-gm" style="">
+        <p>Game finished.</p>
+    </div>
+</div>
+</div>
+
+</body>
+</html>
