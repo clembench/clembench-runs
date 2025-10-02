@@ -373,8 +373,10 @@ if __name__ == "__main__":
 
     if args.target_models:
         costimator.set_openrouter_models(args.target_models.split(","))
-    if args.target_models_file:
+    elif args.target_models_file:
         costimator.get_openrouter_models_from_file(args.target_models_file)
+    else:
+        costimator.get_openrouter_models_from_file()
 
     costimator.get_current_openrouter_pricing()
 
