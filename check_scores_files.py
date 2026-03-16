@@ -69,39 +69,48 @@ def count_missing_scores(root_folder, instance_dict):
                 if not os.path.isdir(game_path):
                     print(f"WARNING: {game_path} should be a directory, but it's not!")
                     missing_model_scores[game_name] = "Game folder is missing or not a directory"
-                    break
-                    continue
-                for experiment_name in model_instance_dict[game_name]:
-                    experiment_path = os.path.join(game_path, experiment_name)
-                    if not os.path.isdir(experiment_path):
-                        print(f"WARNING: {experiment_path} should be a directory, but it's not!")
-                        if game_name not in missing_model_scores:
-                            missing_model_scores[game_name] = {}
-                        missing_model_scores[game_name][experiment_name] = f"Experiment folder is missing or not a directory : {experiment_path}"
-                        continue
-                    for episode_name in model_instance_dict[game_name][experiment_name]:
-                        episode_path = os.path.join(experiment_path, episode_name)
-                        if not os.path.isdir(episode_path):
-                            print(f"WARNING: {episode_path} should be a directory, but it's not!")
+                else:
+                    for experiment_name in model_instance_dict[game_name]:
+                        experiment_path = os.path.join(game_path, experiment_name)
+                        if not os.path.isdir(experiment_path):
+                            print(f"WARNING: {experiment_path} should be a directory, but it's not!")
                             if game_name not in missing_model_scores:
                                 missing_model_scores[game_name] = {}
-                            if experiment_name not in missing_model_scores[game_name]:
-                                missing_model_scores[game_name][experiment_name] = {}
-                            print(missing_model_scores[game_name][experiment_name])
-                            missing_model_scores[game_name][experiment_name][episode_name] = "Episode folder is missing or not a directory"
+                            missing_model_scores[game_name][experiment_name] = f"Experiment folder is missing or not a directory : {experiment_path}"
                             continue
-                        scores_path = os.path.join(episode_path, 'scores.json')
-                        if not os.path.exists(scores_path):
-                            missing_scores_count += 1
-                            if game_name not in missing_model_scores:
-                                missing_model_scores[game_name] = {}
-                            if experiment_name not in missing_model_scores[game_name]:
-                                missing_model_scores[game_name][experiment_name] = {}
-                            missing_model_scores[game_name][experiment_name][episode_name] = "scores.json is missing"
-                            print(f"Missing 'scores.json' in episode: {episode_path}")
-                        else:
-                            # remove the instance from the dict to keep track of which ones we've seen
-                            model_instance_dict[game_name][experiment_name].remove(episode_name)
+                        for episode_name in model_instance_dict[game_name][experiment_name]:
+                            episode_path = os.path.join(experiment_path, episode_name)
+                            if not os.path.isdir(episode_path):
+                                print(f"WARNING: {episode_path} should be a directory, but it's not!")
+                                if game_name not in missing_model_scores:
+                                    missing_model_scores[game_name] = {}
+                                if experiment_name not in missing_model_scores[game_name]:
+                                    missing_model_scores[game_name][experiment_name] = {}
+                                print(missing_model_scores[game_name][experiment_name])
+                                missing_model_scores[game_name][experiment_name][episode_name] = "Episode folder is missing or not a directory"
+                                continue
+                            interactions_path = os.path.join(episode_path, 'interactions.json')
+                            if not os.path.exists(interactions_path):
+                                missing_scores_count += 1
+                                if game_name not in missing_model_scores:
+                                    missing_model_scores[game_name] = {}
+                                if experiment_name not in missing_model_scores[game_name]:
+                                    missing_model_scores[game_name][experiment_name] = {}
+                                missing_model_scores[game_name][experiment_name][episode_name] = "interactions.json is missing"
+                                print(f"Missing 'interactions.json' in episode: {episode_path}")
+                            else:
+                                scores_path = os.path.join(episode_path, 'scores.json')
+                                if not os.path.exists(scores_path):
+                                    missing_scores_count += 1
+                                    if game_name not in missing_model_scores:
+                                        missing_model_scores[game_name] = {}
+                                    if experiment_name not in missing_model_scores[game_name]:
+                                        missing_model_scores[game_name][experiment_name] = {}
+                                    missing_model_scores[game_name][experiment_name][episode_name] = "scores.json is missing"
+                                    print(f"Missing 'scores.json' in episode: {episode_path}")
+                                else:
+                                    # remove the instance from the dict to keep track of which ones we've seen
+                                    model_instance_dict[game_name][experiment_name].remove(episode_name)
             if missing_model_scores:
                 missing_scores[model_name] = missing_model_scores
 

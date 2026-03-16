@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <style>
+        /* This CSS is based on a stack overflow answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {
+  background-color: rgb(157, 152, 150);
+}
+
+.top-info {
+	text-align: center;
+	font: 1.25rem/1.5 sans-serif;
+	display: flex;
+	flex-direction: column;
+	padding: 1.25em;
+	width: 80%;
+  max-width: 1200px;
+	margin: auto;
+	background: #3f3e3e;
+	color: #fff;
+}
+
+.chat {
+  --rad: 1.5rem;
+  --rad-sm: .3rem;
+  font: 1rem/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 80%;
+  max-width: 1200px;
+  margin: auto;
+  background: #fff;
+}
+
+.msg {
+  position: relative;
+  padding: .6rem 1.2rem;
+  margin-inline: 1rem;
+  margin-block: 2rem;
+}
+
+.game-round {
+  padding: 1.5rem 0 1.5rem 0;
+  background-color: #f0f8ff; /* light background for content */
+  position: relative; /* Important to position the badge */
+  border-radius: 1rem;
+  margin: 1rem;
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .1);
+}
+
+/* Badge in top-right corner */
+.game-round::before {
+  content: "Round " attr(data-round);
+  position: absolute;
+  top: .35rem;
+  right: 1.5rem;
+  color: #c4c3c3;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+/* For fenced code/monospace blocks */
+pre {
+  background: #e0e0e0;
+  border-left: .2rem solid #f36d33;
+  border-radius: .2rem;
+  color: #666;
+  font-family: monospace;
+  line-height: 1.0;
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+  overflow: auto;
+  padding: 0.5rem 0.2rem;
+}/* This CSS is based on a stack overflow answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */
+
+.msg.player-gm.p1 {
+  border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+  background: #f39109;
+  color: #fff;
+  margin-right: 40%;
+}
+
+.msg.player-gm.p2 {
+  border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+  background: #874aaf;
+  color: #fff;
+  margin-left: 40%;
+}
+.msg.player-gm::before {
+  right: 1rem;
+}
+
+.msg.gm-player {
+  background: #c4c3c3;
+  color: #0c0c0c;
+}
+
+.msg.gm-player.p1 {
+  border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+  margin-right: 20%;
+  margin-left: 10%;
+}
+
+.msg.gm-player.p2 {
+  border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+  margin-right: 10%;
+  margin-left: 20%;
+}
+
+.msg.gm-gm {
+  border-radius: var(--rad-sm) var(--rad-sm) var(--rad-sm) var(--rad-sm);
+  background: #f1f1f1;
+  color: #373636;
+  margin-left: 20%;
+  margin-right: 20%;
+  font-size: 0.8rem;
+
+}
+
+/* speaker labels */
+
+.msg::before {
+  content: attr(speaker);
+  font-size: 0.8rem;
+  position: absolute;
+  bottom: 100%;
+  color: #888;
+  white-space: nowrap;
+
+}
+
+/* Message info displayed on the right for GM to Player 1 */
+.msg.gm-player.a::before {
+  right: 1rem;
+}
+
+/* All other cases: message info on the left */
+.msg.player-gm.a::before, .msg.gm-player.b::before, .msg.gm-gm::before {
+  left: 1rem;
+}
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for game 'dond', experiment 'coop_en', episode 11 with Llama-3.3-70B-Instruct-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+<div class="game-round" data-round="0">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>You are playing a cooperative negotiation game in which you have to agree on how to divide a set of items among you and another player.<br/><br/>Rules:<br/>(a) You and the other player are given a set of items. Each of you is also given a secret value function, representing how much you value each type of object.<br/>(b) You exchange messages with the other player to agree on who gets which items. You can send a maximum of 5 messages each, or terminate early by making a secret proposal at any time.<br/>(c) You are each asked to submit a secret proposal indicating the items you want formatted in square brackets as follows: &quot;[Proposal: &lt;number&gt; &lt;object name&gt;, &lt;number&gt; &lt;object name&gt;, &lt;...&gt;]&quot;<br/>(d) If your proposals are complementary, i.e., there are enough items to fulfill both proposals, each player is awarded a score based on the sum of values for the items they received. Otherwise, both of you get zero points.<br/>(e) Your goal is to maximize the sum of your score and the score of the other player.<br/><br/>Let us start.<br/><br/>The set of available items is:<br/><br/>1 ring, 3 fruits, 1 chalk<br/><br/>Your secret value function is:<br/><br/>ring: 6, fruit: 1, chalk: 1<br/><br/>IMPORTANT: Your messages, unless it is the secret proposal, are directly transmitted to the other player, so do not include any response to the rules or text announcing your message. To make a secret proposal, use the indicated format. Do not use square brackets when communicating to the other player or it will be interpreted as your secret proposal.<br/></p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>I&#x27;m interested in the ring, how about you, do you have a preference for any of the items?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I&#x27;m interested in the ring, how about you, do you have a preference for any of the items?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>You are playing a cooperative negotiation game in which you have to agree on how to divide a set of items among you and another player.<br/><br/>Rules:<br/>(a) You and the other player are given a set of items. Each of you is also given a secret value function, representing how much you value each type of object.<br/>(b) You exchange messages with the other player to agree on who gets which items. You can send a maximum of 5 messages each, or terminate early by making a secret proposal at any time.<br/>(c) You are each asked to submit a secret proposal indicating the items you want formatted in square brackets as follows: &quot;[Proposal: &lt;number&gt; &lt;object name&gt;, &lt;number&gt; &lt;object name&gt;, &lt;...&gt;]&quot;<br/>(d) If your proposals are complementary, i.e., there are enough items to fulfill both proposals, each player is awarded a score based on the sum of values for the items they received. Otherwise, both of you get zero points.<br/>(e) Your goal is to maximize the sum of your score and the score of the other player.<br/><br/>Let us start.<br/><br/>The set of available items is:<br/><br/>1 ring, 3 fruits, 1 chalk<br/><br/>Your secret value function is:<br/><br/>ring: 6, fruit: 1, chalk: 1<br/><br/>IMPORTANT: Your messages, unless it is the secret proposal, are directly transmitted to the other player, so do not include any response to the rules or text announcing your message. To make a secret proposal, use the indicated format. Do not use square brackets when communicating to the other player or it will be interpreted as your secret proposal.<br/><br/><br/>I&#x27;m interested in the ring, how about you, do you have a preference for any of the items?</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>I&#x27;m interested in the fruits, I think I can make good use of all 3 of them. What&#x27;s your thoughts on the chalk, do you want it or should we discuss other options?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I&#x27;m interested in the fruits, I think I can make good use of all 3 of them. What&#x27;s your thoughts on the chalk, do you want it or should we discuss other options?</p>
+    </div>
+</div><div class="game-round" data-round="1">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>I&#x27;m interested in the fruits, I think I can make good use of all 3 of them. What&#x27;s your thoughts on the chalk, do you want it or should we discuss other options?</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>The chalk is not very important to me, so you&#x27;re welcome to it if you want it. I&#x27;m still very interested in the ring, would you be willing to let me have it if I let you have all 3 fruits and the chalk?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>The chalk is not very important to me, so you&#x27;re welcome to it if you want it. I&#x27;m still very interested in the ring, would you be willing to let me have it if I let you have all 3 fruits and the chalk?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>The chalk is not very important to me, so you&#x27;re welcome to it if you want it. I&#x27;m still very interested in the ring, would you be willing to let me have it if I let you have all 3 fruits and the chalk?</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>That sounds like a reasonable trade, but before I agree, can you tell me if you&#x27;re willing to give me anything else or is it just the ring for the fruits and chalk?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>That sounds like a reasonable trade, but before I agree, can you tell me if you&#x27;re willing to give me anything else or is it just the ring for the fruits and chalk?</p>
+    </div>
+</div><div class="game-round" data-round="2">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>That sounds like a reasonable trade, but before I agree, can you tell me if you&#x27;re willing to give me anything else or is it just the ring for the fruits and chalk?</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>I don&#x27;t have anything else to offer, it&#x27;s a straight trade: you get the 3 fruits and the chalk, and I get the ring. I think it&#x27;s a fair deal since the ring is quite valuable to me, and the fruits and chalk seem to be what you&#x27;re interested in. Shall we agree on this and make our proposals?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I don&#x27;t have anything else to offer, it&#x27;s a straight trade: you get the 3 fruits and the chalk, and I get the ring. I think it&#x27;s a fair deal since the ring is quite valuable to me, and the fruits and chalk seem to be what you&#x27;re interested in. Shall we agree on this and make our proposals?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>I don&#x27;t have anything else to offer, it&#x27;s a straight trade: you get the 3 fruits and the chalk, and I get the ring. I think it&#x27;s a fair deal since the ring is quite valuable to me, and the fruits and chalk seem to be what you&#x27;re interested in. Shall we agree on this and make our proposals?</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>Proposal: 3 fruits, 1 chalk</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>Proposal: 3 fruits, 1 chalk</p>
+    </div>
+</div><div class="game-round" data-round="3">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>Proposal: 3 fruits, 1 chalk</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>Proposal: 1 ring</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>Proposal: 1 ring</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>Proposal: 1 ring</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>It seems we&#x27;ve both made our proposals. Let&#x27;s see how it turns out. Since our proposals are complementary, we should both get a score. I&#x27;m looking forward to seeing the outcome.</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>It seems we&#x27;ve both made our proposals. Let&#x27;s see how it turns out. Since our proposals are complementary, we should both get a score. I&#x27;m looking forward to seeing the outcome.</p>
+    </div>
+</div><div class="game-round" data-round="4">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>It seems we&#x27;ve both made our proposals. Let&#x27;s see how it turns out. Since our proposals are complementary, we should both get a score. I&#x27;m looking forward to seeing the outcome.</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>Now that we&#x27;ve both made our proposals, let&#x27;s calculate our scores. <br/><br/>You proposed: 3 fruits, 1 chalk<br/>Your score is: 3 * (your value for fruit) + 1 * (your value for chalk)<br/><br/>I proposed: 1 ring<br/>My score is: 1 * (my value for ring) = 1 * 6 = 6<br/><br/>Since I don&#x27;t know your secret value function, I don&#x27;t know your exact score, but I know mine is 6. <br/><br/>Let&#x27;s hope our total score (yours + mine) is high!</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>Now that we&#x27;ve both made our proposals, let&#x27;s calculate our scores. <br/><br/>You proposed: 3 fruits, 1 chalk<br/>Your score is: 3 * (your value for fruit) + 1 * (your value for chalk)<br/><br/>I proposed: 1 ring<br/>My score is: 1 * (my value for ring) = 1 * 6 = 6<br/><br/>Since I don&#x27;t know your secret value function, I don&#x27;t know your exact score, but I know mine is 6. <br/><br/>Let&#x27;s hope our total score (yours + mine) is high!</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>Now that we&#x27;ve both made our proposals, let&#x27;s calculate our scores. <br/><br/>You proposed: 3 fruits, 1 chalk<br/>Your score is: 3 * (your value for fruit) + 1 * (your value for chalk)<br/><br/>I proposed: 1 ring<br/>My score is: 1 * (my value for ring) = 1 * 6 = 6<br/><br/>Since I don&#x27;t know your secret value function, I don&#x27;t know your exact score, but I know mine is 6. <br/><br/>Let&#x27;s hope our total score (yours + mine) is high!</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>My score is: 3 * 1 + 1 * 1 = 3 + 1 = 4<br/><br/>So, our total score is: 6 (your score) + 4 (my score) = 10<br/><br/>I&#x27;m glad we were able to negotiate a deal that worked out well for both of us!</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>My score is: 3 * 1 + 1 * 1 = 3 + 1 = 4<br/><br/>So, our total score is: 6 (your score) + 4 (my score) = 10<br/><br/>I&#x27;m glad we were able to negotiate a deal that worked out well for both of us!</p>
+    </div>
+</div><div class="game-round" data-round="5">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>My score is: 3 * 1 + 1 * 1 = 3 + 1 = 4<br/><br/>So, our total score is: 6 (your score) + 4 (my score) = 10<br/><br/>I&#x27;m glad we were able to negotiate a deal that worked out well for both of us!<br/><br/><br/>The time is up. It is now your turn to submit a secret proposal.<br/></p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>[Proposal: 1 ring]</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>proposal</p>
+    </div>
+
+    <div speaker="Game Master: valid proposal" class="msg gm-gm" style="">
+        <p>[1, 0, 0]</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>The other player has submitted a secret proposal. It is now your turn to submit a proposal of your own.<br/></p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>Proposal: 1 ring, 2 fruits, 1 chalk</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: error" class="msg gm-gm" style="">
+        <p>player was instructed to make a proposal</p>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

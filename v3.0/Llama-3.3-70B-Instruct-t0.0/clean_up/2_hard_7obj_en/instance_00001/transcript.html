@@ -1,0 +1,1244 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <style>
+        /* This CSS is based on a stack overflow answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {
+  background-color: rgb(157, 152, 150);
+}
+
+.top-info {
+	text-align: center;
+	font: 1.25rem/1.5 sans-serif;
+	display: flex;
+	flex-direction: column;
+	padding: 1.25em;
+	width: 80%;
+  max-width: 1200px;
+	margin: auto;
+	background: #3f3e3e;
+	color: #fff;
+}
+
+.chat {
+  --rad: 1.5rem;
+  --rad-sm: .3rem;
+  font: 1rem/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 80%;
+  max-width: 1200px;
+  margin: auto;
+  background: #fff;
+}
+
+.msg {
+  position: relative;
+  padding: .6rem 1.2rem;
+  margin-inline: 1rem;
+  margin-block: 2rem;
+}
+
+.game-round {
+  padding: 1.5rem 0 1.5rem 0;
+  background-color: #f0f8ff; /* light background for content */
+  position: relative; /* Important to position the badge */
+  border-radius: 1rem;
+  margin: 1rem;
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .1);
+}
+
+/* Badge in top-right corner */
+.game-round::before {
+  content: "Round " attr(data-round);
+  position: absolute;
+  top: .35rem;
+  right: 1.5rem;
+  color: #c4c3c3;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+/* For fenced code/monospace blocks */
+pre {
+  background: #e0e0e0;
+  border-left: .2rem solid #f36d33;
+  border-radius: .2rem;
+  color: #666;
+  font-family: monospace;
+  line-height: 1.0;
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+  overflow: auto;
+  padding: 0.5rem 0.2rem;
+}/* This CSS is based on a stack overflow answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */
+
+.msg.player-gm.p1 {
+  border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+  background: #f39109;
+  color: #fff;
+  margin-right: 40%;
+}
+
+.msg.player-gm.p2 {
+  border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+  background: #874aaf;
+  color: #fff;
+  margin-left: 40%;
+}
+.msg.player-gm::before {
+  right: 1rem;
+}
+
+.msg.gm-player {
+  background: #c4c3c3;
+  color: #0c0c0c;
+}
+
+.msg.gm-player.p1 {
+  border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+  margin-right: 20%;
+  margin-left: 10%;
+}
+
+.msg.gm-player.p2 {
+  border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+  margin-right: 10%;
+  margin-left: 20%;
+}
+
+.msg.gm-gm {
+  border-radius: var(--rad-sm) var(--rad-sm) var(--rad-sm) var(--rad-sm);
+  background: #f1f1f1;
+  color: #373636;
+  margin-left: 20%;
+  margin-right: 20%;
+  font-size: 0.8rem;
+
+}
+
+/* speaker labels */
+
+.msg::before {
+  content: attr(speaker);
+  font-size: 0.8rem;
+  position: absolute;
+  bottom: 100%;
+  color: #888;
+  white-space: nowrap;
+
+}
+
+/* Message info displayed on the right for GM to Player 1 */
+.msg.gm-player.a::before {
+  right: 1rem;
+}
+
+/* All other cases: message info on the left */
+.msg.player-gm.a::before, .msg.gm-player.b::before, .msg.gm-gm::before {
+  left: 1rem;
+}
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for game 'clean_up', experiment '2_hard_7obj_en', episode 1 with Llama-3.3-70B-Instruct-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+<div class="game-round" data-round="0">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>I am your game master, and you are playing a collaborative game with the following grid as game board:</p>
+<pre><code> 1234567
+╔═══╤═╤═╗
+║◌S◌│◌│A║ 1
+╟─┬─┼─┴─╢ 2
+║◌│◌│◌◌◌║ 3
+║P├─┤D┌─╢ 4
+╟─┘◌│◌│M║ 5
+║◌◌◌└┬┴─╢ 6
+║◌OT◌│◌◌║ 7
+╚════╧══╝
+
+</code></pre>
+<ul>
+<li>The upper edge displays x-coordinates increasing to the right, and the right edge y-coordinates increasing downward.</li>
+<li>The following objects are randomly placed on your grid: 'P', 'O', 'T', 'S', 'D', 'A', 'M'.</li>
+</ul>
+<p>The other player sees a variation of the game board, where the objects are placed at different random locations. You cannot see the other player's board, and they cannot see yours.</p>
+<p><strong>Goal:</strong></p>
+<p>Both players need to move the objects on their respective background so that identical objects end up at the same coordinates. You have to communicate with the other player to agree upon a common goal configuration.</p>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>In each turn, you can send exactly one of the following two commands:</li>
+<li><code>SAY: &lt;MESSAGE&gt;</code>: to send a message (everything up until the next line break) to the other player. I will forward it to your partner.</li>
+<li><code>MOVE: &lt;OBJECT&gt;, (&lt;X&gt;, &lt;Y&gt;)</code>: to move an object to a new position, where <code>&lt;X&gt;</code> is the column and <code>&lt;Y&gt;</code> is the row. I will inform you if your move was successful or not.</li>
+<li>If you don't stick to the format, or send several commands at once, I have to penalize you.</li>
+<li>If both players accumulate more than 16 penalties, you both lose the game.</li>
+<li>It is vital that you communicate with the other player regarding your goal state! The <em>only</em> way you can transmit your strategy to the other player is using the <code>SAY: &lt;MESSAGE&gt;</code> command!</li>
+</ul>
+<p><strong>Moving Objects</strong></p>
+<ul>
+<li>You can only move objects to cells within the bounds of the grid. The target cell must be empty, i.e., it must only contain the symbol '◌'.</li>
+<li>If you try to move an object to a spot that is not empty, or try to move it outside of the grid, I have to penalize you. You get another try.</li>
+<li>Before making a move, double check that the target spot is empty, and does not hold any letter, frame, or line!</li>
+</ul>
+<p><strong>End of Game</strong></p>
+<p>If you think you reached the goal of aligning all objects, you can ask the other player to finish the game by sending <code>SAY: finished?</code>. If the other player asks you to finish the game, and you reply with <code>SAY: finished!</code>, the game will end.</p>
+<p>Both players win if the game ends within 28 rounds, where one round is defined as two players each sending a valid command.</p>
+<p><strong>Scoring:</strong></p>
+<p>The closer the identical objects are in both game boards, the more points you get. Penalties reduce your points. Can you beat the record?</p>
+<p>Please send a message to the other player to start the game!</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: Hello, let's start by describing our initial board configurations. I'll go first. My board has the following objects at these coordinates: S (1,1), A (3,1), P (1,4), D (3,4), M (4,5), O (2,7), T (3,7). Please respond with your board configuration, and we can discuss a strategy to align our objects.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Hello, let's start by describing our initial board configurations. I'll go first. My board has the following objects at these coordinates: S (1,1), A (3,1), P (1,4), D (3,4), M (4,5), O (2,7), T (3,7). Please respond with your board configuration, and we can discuss a strategy to align our objects.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>I am your game master, and you are playing a collaborative game with the following grid as game board:</p>
+<pre><code> 1234567
+╔═══╤═╤═╗
+║P◌A│◌│◌║ 1
+╟─┬─┼─┴─╢ 2
+║◌│D│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘◌│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌S◌T│◌M║ 7
+╚════╧══╝
+
+</code></pre>
+<ul>
+<li>The upper edge displays x-coordinates increasing to the right, and the right edge y-coordinates increasing downward.</li>
+<li>The following objects are randomly placed on your grid: 'P', 'O', 'T', 'S', 'D', 'A', 'M'.</li>
+</ul>
+<p>The other player sees a variation of the game board, where the objects are placed at different random locations. You cannot see the other player's board, and they cannot see yours.</p>
+<p><strong>Goal:</strong></p>
+<p>Both players need to move the objects on their respective background so that identical objects end up at the same coordinates. You have to communicate with the other player to agree upon a common goal configuration.</p>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>In each turn, you can send exactly one of the following two commands:</li>
+<li><code>SAY: &lt;MESSAGE&gt;</code>: to send a message (everything up until the next line break) to the other player. I will forward it to your partner.</li>
+<li><code>MOVE: &lt;OBJECT&gt;, (&lt;X&gt;, &lt;Y&gt;)</code>: to move an object to a new position, where <code>&lt;X&gt;</code> is the column and <code>&lt;Y&gt;</code> is the row. I will inform you if your move was successful or not.</li>
+<li>If you don't stick to the format, or send several commands at once, I have to penalize you.</li>
+<li>If both players accumulate more than 16 penalties, you both lose the game.</li>
+<li>It is vital that you communicate with the other player regarding your goal state! The <em>only</em> way you can transmit your strategy to the other player is using the <code>SAY: &lt;MESSAGE&gt;</code> command!</li>
+</ul>
+<p><strong>Moving Objects</strong></p>
+<ul>
+<li>You can only move objects to cells within the bounds of the grid. The target cell must be empty, i.e., it must only contain the symbol '◌'.</li>
+<li>If you try to move an object to a spot that is not empty, or try to move it outside of the grid, I have to penalize you. You get another try.</li>
+<li>Before making a move, double check that the target spot is empty, and does not hold any letter, frame, or line!</li>
+</ul>
+<p><strong>End of Game</strong></p>
+<p>If you think you reached the goal of aligning all objects, you can ask the other player to finish the game by sending <code>SAY: finished?</code>. If the other player asks you to finish the game, and you reply with <code>SAY: finished!</code>, the game will end.</p>
+<p>Both players win if the game ends within 28 rounds, where one round is defined as two players each sending a valid command.</p>
+<p><strong>Scoring:</strong></p>
+<p>The closer the identical objects are in both game boards, the more points you get. Penalties reduce your points. Can you beat the record?</p>
+<p>The other player started the game by sending this message:</p>
+<p>"Hello, let's start by describing our initial board configurations. I'll go first. My board has the following objects at these coordinates: S (1,1), A (3,1), P (1,4), D (3,4), M (4,5), O (2,7), T (3,7). Please respond with your board configuration, and we can discuss a strategy to align our objects."</p>
+<p>What is your first command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: Hello, thanks for starting. My board has the following objects at these coordinates: P (1,1), A (2,1), D (2,3), O (4,5), T (5,7), S (1,7), M (6,7). Let's discuss a strategy to align our objects. What do you propose as a common goal configuration?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Hello, thanks for starting. My board has the following objects at these coordinates: P (1,1), A (2,1), D (2,3), O (4,5), T (5,7), S (1,7), M (6,7). Let's discuss a strategy to align our objects. What do you propose as a common goal configuration?</p></p>
+    </div>
+</div><div class="game-round" data-round="1">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 1 of maximum 28.
+You have collectively accumulated 0 of 16 penalties.
+The other player sent this message:</p>
+<p>"Hello, thanks for starting. My board has the following objects at these coordinates: P (1,1), A (2,1), D (2,3), O (4,5), T (5,7), S (1,7), M (6,7). Let's discuss a strategy to align our objects. What do you propose as a common goal configuration?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: Thanks for sharing your board configuration. To align our objects, let's propose a common goal configuration where each object is placed at a unique coordinate. How about we aim for the following configuration: S (1,1), P (1,2), A (1,3), D (1,4), M (1,5), O (1,6), T (1,7)? This way, all objects are aligned vertically in the first column. What do you think? Should we adjust anything or try to achieve this configuration?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Thanks for sharing your board configuration. To align our objects, let's propose a common goal configuration where each object is placed at a unique coordinate. How about we aim for the following configuration: S (1,1), P (1,2), A (1,3), D (1,4), M (1,5), O (1,6), T (1,7)? This way, all objects are aligned vertically in the first column. What do you think? Should we adjust anything or try to achieve this configuration?</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 2 of maximum 28.
+You have collectively accumulated 0 of 16 penalties.
+The other player sent this message:</p>
+<p>"Thanks for sharing your board configuration. To align our objects, let's propose a common goal configuration where each object is placed at a unique coordinate. How about we aim for the following configuration: S (1,1), P (1,2), A (1,3), D (1,4), M (1,5), O (1,6), T (1,7)? This way, all objects are aligned vertically in the first column. What do you think? Should we adjust anything or try to achieve this configuration?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: That's an interesting proposal. I think the configuration you suggested is a good starting point. However, I'd like to confirm that it's achievable from both our initial board configurations. Before we proceed, can you confirm that you can move your objects to the proposed coordinates without any issues? Also, I'll review my board to ensure I can make the necessary moves. Do you think we should prioritize moving one object at a time to the target coordinates, or try to move multiple objects simultaneously?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: That's an interesting proposal. I think the configuration you suggested is a good starting point. However, I'd like to confirm that it's achievable from both our initial board configurations. Before we proceed, can you confirm that you can move your objects to the proposed coordinates without any issues? Also, I'll review my board to ensure I can make the necessary moves. Do you think we should prioritize moving one object at a time to the target coordinates, or try to move multiple objects simultaneously?</p></p>
+    </div>
+</div><div class="game-round" data-round="2">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 2 of maximum 28.
+You have collectively accumulated 0 of 16 penalties.
+The other player sent this message:</p>
+<p>"That's an interesting proposal. I think the configuration you suggested is a good starting point. However, I'd like to confirm that it's achievable from both our initial board configurations. Before we proceed, can you confirm that you can move your objects to the proposed coordinates without any issues? Also, I'll review my board to ensure I can make the necessary moves. Do you think we should prioritize moving one object at a time to the target coordinates, or try to move multiple objects simultaneously?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: I've reviewed my board, and I believe I can move my objects to the proposed coordinates. However, I think it's best to prioritize moving one object at a time to the target coordinates. This approach will allow us to confirm that each move is feasible and avoid potential conflicts or penalties. Let's start by moving the 'S' object, which is already close to the target coordinate (1,1) on my board. On your end, please check if you can move your 'S' object to (1,1) as well. Once we've successfully moved the 'S' objects, we can proceed with the next object, likely 'P'. What's your thoughts on this step-by-step approach?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I've reviewed my board, and I believe I can move my objects to the proposed coordinates. However, I think it's best to prioritize moving one object at a time to the target coordinates. This approach will allow us to confirm that each move is feasible and avoid potential conflicts or penalties. Let's start by moving the 'S' object, which is already close to the target coordinate (1,1) on my board. On your end, please check if you can move your 'S' object to (1,1) as well. Once we've successfully moved the 'S' objects, we can proceed with the next object, likely 'P'. What's your thoughts on this step-by-step approach?</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 3 of maximum 28.
+You have collectively accumulated 0 of 16 penalties.
+The other player sent this message:</p>
+<p>"I've reviewed my board, and I believe I can move my objects to the proposed coordinates. However, I think it's best to prioritize moving one object at a time to the target coordinates. This approach will allow us to confirm that each move is feasible and avoid potential conflicts or penalties. Let's start by moving the 'S' object, which is already close to the target coordinate (1,1) on my board. On your end, please check if you can move your 'S' object to (1,1) as well. Once we've successfully moved the 'S' objects, we can proceed with the next object, likely 'P'. What's your thoughts on this step-by-step approach?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: I agree with the step-by-step approach, it's safer and more controlled. I've checked my board, and I can move my 'S' object to (1,1). However, I need to make a move to achieve that. My current 'S' is at (1,7), so I'll need to move it up to (1,1). I'll make the move and then confirm with you. Please wait for my next move, which will be a MOVE command to relocate my 'S' object.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I agree with the step-by-step approach, it's safer and more controlled. I've checked my board, and I can move my 'S' object to (1,1). However, I need to make a move to achieve that. My current 'S' is at (1,7), so I'll need to move it up to (1,1). I'll make the move and then confirm with you. Please wait for my next move, which will be a MOVE command to relocate my 'S' object.</p></p>
+    </div>
+</div><div class="game-round" data-round="3">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 3 of maximum 28.
+You have collectively accumulated 0 of 16 penalties.
+The other player sent this message:</p>
+<p>"I agree with the step-by-step approach, it's safer and more controlled. I've checked my board, and I can move my 'S' object to (1,1). However, I need to make a move to achieve that. My current 'S' is at (1,7), so I'll need to move it up to (1,1). I'll make the move and then confirm with you. Please wait for my next move, which will be a MOVE command to relocate my 'S' object."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: Sounds good, please go ahead and make the move to relocate your 'S' object to (1,1). I'll wait for your confirmation. After you've made the move, please let me know, and I'll review my board to ensure my 'S' object is also at (1,1). If everything looks good, we can proceed with moving the next object, which would be 'P' to (1,2). I'm ready when you are!</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Sounds good, please go ahead and make the move to relocate your 'S' object to (1,1). I'll wait for your confirmation. After you've made the move, please let me know, and I'll review my board to ensure my 'S' object is also at (1,1). If everything looks good, we can proceed with moving the next object, which would be 'P' to (1,2). I'm ready when you are!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 4 of maximum 28.
+You have collectively accumulated 0 of 16 penalties.
+The other player sent this message:</p>
+<p>"Sounds good, please go ahead and make the move to relocate your 'S' object to (1,1). I'll wait for your confirmation. After you've made the move, please let me know, and I'll review my board to ensure my 'S' object is also at (1,1). If everything looks good, we can proceed with moving the next object, which would be 'P' to (1,2). I'm ready when you are!"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: S, (1,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: S, (1,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (1,1) is not empty, but contains 'P'.</p>
+<p>You have collectively accumulated 1 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (1,1) is not empty, but contains 'P'.</p>
+<p>You have collectively accumulated 1 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: P, (2,1) </p>
+<p>(I will move the 'P' object to a different location to make space for the 'S' object, and then I can move the 'S' object to (1,1))</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: P, (2,1) </p>
+<p>(I will move the 'P' object to a different location to make space for the 'S' object, and then I can move the 'S' object to (1,1))</p></p>
+    </div>
+
+    <div speaker="Game Master: parse_error" class="msg gm-gm" style="">
+        <p><p>Invalid format: tail is not empty: ' </p>
+<p>(I will move the 'P' object to a different location to make space for the 'S' object, and then I can move the 'S' object to (1,1))</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: Your message must not contain anything after the command!</p>
+<p>Make sure that your response only contains either <code>SAY: &lt;MESSAGE&gt;</code> or <code>MOVE: &lt;OBJECT&gt;, (&lt;X&gt;, &lt;Y&gt;)</code>, and nothing else!</p>
+<p>You have collectively accumulated 2 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: P, (2,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: P, (2,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: valid_move" class="msg gm-gm" style="">
+        <p><p>P moved to (2, 1)</p></p>
+    </div>
+</div><div class="game-round" data-round="4">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 4 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player moved an object on their grid.</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: I see that you've made a move. Can you please confirm that your 'S' object is now at (1,1)? Also, what was the result of your move, was it successful? Additionally, I'll review my board to ensure my 'S' object is at the correct position. If everything looks good, we can proceed with the next step, which is moving the 'P' object to (1,2). Please let me know the status of your board.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I see that you've made a move. Can you please confirm that your 'S' object is now at (1,1)? Also, what was the result of your move, was it successful? Additionally, I'll review my board to ensure my 'S' object is at the correct position. If everything looks good, we can proceed with the next step, which is moving the 'P' object to (1,2). Please let me know the status of your board.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Moved 'P' to (2,1) successfully. Your updated grid looks like this:</p>
+<pre><code> 1234567
+╔═══╤═╤═╗
+║◌PA│◌│◌║ 1
+╟─┬─┼─┴─╢ 2
+║◌│D│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘◌│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌S◌T│◌M║ 7
+╚════╧══╝
+</code></pre>
+<p>You are currently playing round 5 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player sent this message:</p>
+<p>"I see that you've made a move. Can you please confirm that your 'S' object is now at (1,1)? Also, what was the result of your move, was it successful? Additionally, I'll review my board to ensure my 'S' object is at the correct position. If everything looks good, we can proceed with the next step, which is moving the 'P' object to (1,2). Please let me know the status of your board."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: My 'P' object is now at (2,1), and I still need to move my 'S' object to (1,1). The move was successful, but it was just the first step to make space for 'S'. I'll make another move to relocate 'S' to (1,1) next.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: My 'P' object is now at (2,1), and I still need to move my 'S' object to (1,1). The move was successful, but it was just the first step to make space for 'S'. I'll make another move to relocate 'S' to (1,1) next.</p></p>
+    </div>
+</div><div class="game-round" data-round="5">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 5 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player sent this message:</p>
+<p>"My 'P' object is now at (2,1), and I still need to move my 'S' object to (1,1). The move was successful, but it was just the first step to make space for 'S'. I'll make another move to relocate 'S' to (1,1) next."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: It seems like there was a misunderstanding. You mentioned earlier that you would move your 'S' object to (1,1), but instead, you moved your 'P' object to (2,1). Please proceed with moving your 'S' object to (1,1) as originally planned. I'll wait for your next move. Also, just to confirm, my 'S' object is already at (1,1), so we're just waiting for your 'S' object to reach the same position.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: It seems like there was a misunderstanding. You mentioned earlier that you would move your 'S' object to (1,1), but instead, you moved your 'P' object to (2,1). Please proceed with moving your 'S' object to (1,1) as originally planned. I'll wait for your next move. Also, just to confirm, my 'S' object is already at (1,1), so we're just waiting for your 'S' object to reach the same position.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 6 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player sent this message:</p>
+<p>"It seems like there was a misunderstanding. You mentioned earlier that you would move your 'S' object to (1,1), but instead, you moved your 'P' object to (2,1). Please proceed with moving your 'S' object to (1,1) as originally planned. I'll wait for your next move. Also, just to confirm, my 'S' object is already at (1,1), so we're just waiting for your 'S' object to reach the same position."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: S, (1,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: S, (1,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: valid_move" class="msg gm-gm" style="">
+        <p><p>S moved to (1, 1)</p></p>
+    </div>
+</div><div class="game-round" data-round="6">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 6 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player moved an object on their grid.</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm that your 'S' object is now at (1,1)? If so, we can proceed with the next step, which is moving the 'P' object to (1,2). Please let me know the status of your board and we can discuss the next move.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm that your 'S' object is now at (1,1)? If so, we can proceed with the next step, which is moving the 'P' object to (1,2). Please let me know the status of your board and we can discuss the next move.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Moved 'S' to (1,1) successfully. Your updated grid looks like this:</p>
+<pre><code> 1234567
+╔═══╤═╤═╗
+║SPA│◌│◌║ 1
+╟─┬─┼─┴─╢ 2
+║◌│D│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘◌│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌◌◌T│◌M║ 7
+╚════╧══╝
+</code></pre>
+<p>You are currently playing round 7 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player sent this message:</p>
+<p>"I see that you've made another move. Can you please confirm that your 'S' object is now at (1,1)? If so, we can proceed with the next step, which is moving the 'P' object to (1,2). Please let me know the status of your board and we can discuss the next move."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: My 'S' object is now at (1,1), and my 'P' object is at (2,1). To move my 'P' object to (1,2), I'll need to make some space. I'll review my board and plan the next move. Should we proceed with moving 'P' to (1,2) as planned, or do you want to adjust the strategy?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: My 'S' object is now at (1,1), and my 'P' object is at (2,1). To move my 'P' object to (1,2), I'll need to make some space. I'll review my board and plan the next move. Should we proceed with moving 'P' to (1,2) as planned, or do you want to adjust the strategy?</p></p>
+    </div>
+</div><div class="game-round" data-round="7">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 7 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player sent this message:</p>
+<p>"My 'S' object is now at (1,1), and my 'P' object is at (2,1). To move my 'P' object to (1,2), I'll need to make some space. I'll review my board and plan the next move. Should we proceed with moving 'P' to (1,2) as planned, or do you want to adjust the strategy?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: Now that your 'S' object is at (1,1), we can proceed with the original plan. Moving your 'P' object to (1,2) is the next step. If you need to make some space, please go ahead and do so. I'll wait for your next move. On my end, I'll review my board to ensure I can move my 'P' object to (1,2) as well. Let's stick to the plan for now and see how it unfolds. Please make the necessary moves to free up the space and then move your 'P' object to (1,2).</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Now that your 'S' object is at (1,1), we can proceed with the original plan. Moving your 'P' object to (1,2) is the next step. If you need to make some space, please go ahead and do so. I'll wait for your next move. On my end, I'll review my board to ensure I can move my 'P' object to (1,2) as well. Let's stick to the plan for now and see how it unfolds. Please make the necessary moves to free up the space and then move your 'P' object to (1,2).</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 8 of maximum 28.
+You have collectively accumulated 2 of 16 penalties.
+The other player sent this message:</p>
+<p>"Now that your 'S' object is at (1,1), we can proceed with the original plan. Moving your 'P' object to (1,2) is the next step. If you need to make some space, please go ahead and do so. I'll wait for your next move. On my end, I'll review my board to ensure I can move my 'P' object to (1,2) as well. Let's stick to the plan for now and see how it unfolds. Please make the necessary moves to free up the space and then move your 'P' object to (1,2)."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: A, (3,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: A, (3,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (3,1) is not empty, but contains 'A'.</p>
+<p>You have collectively accumulated 3 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (3,1) is not empty, but contains 'A'.</p>
+<p>You have collectively accumulated 3 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: A, (3,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: A, (3,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (3,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 4 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (3,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 4 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: A, (4,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: A, (4,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (4,1) is not empty, but contains '│'.</p>
+<p>You have collectively accumulated 5 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (4,1) is not empty, but contains '│'.</p>
+<p>You have collectively accumulated 5 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: A, (3,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: A, (3,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (3,3) is not empty, but contains 'D'.</p>
+<p>You have collectively accumulated 6 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (3,3) is not empty, but contains 'D'.</p>
+<p>You have collectively accumulated 6 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: D, (4,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: D, (4,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (4,3) is not empty, but contains '│'.</p>
+<p>You have collectively accumulated 7 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (4,3) is not empty, but contains '│'.</p>
+<p>You have collectively accumulated 7 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: A, (5,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: A, (5,1)</p></p>
+    </div>
+
+    <div speaker="Game Master: valid_move" class="msg gm-gm" style="">
+        <p><p>A moved to (5, 1)</p></p>
+    </div>
+</div><div class="game-round" data-round="8">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 8 of maximum 28.
+You have collectively accumulated 7 of 16 penalties.
+The other player moved an object on their grid.</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm the current position of your 'P' object? Has it been moved to (1,2) yet? Also, I'd like to know what object you moved this time and where it was moved to. This will help me understand the current state of your board and plan my next move accordingly. Additionally, I'll review my board to see if I need to make any adjustments to my 'P' object's position. Please provide an update on your board's current state.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm the current position of your 'P' object? Has it been moved to (1,2) yet? Also, I'd like to know what object you moved this time and where it was moved to. This will help me understand the current state of your board and plan my next move accordingly. Additionally, I'll review my board to see if I need to make any adjustments to my 'P' object's position. Please provide an update on your board's current state.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Moved 'A' to (5,1) successfully. Your updated grid looks like this:</p>
+<pre><code> 1234567
+╔═══╤═╤═╗
+║SP◌│A│◌║ 1
+╟─┬─┼─┴─╢ 2
+║◌│D│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘◌│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌◌◌T│◌M║ 7
+╚════╧══╝
+</code></pre>
+<p>You are currently playing round 9 of maximum 28.
+You have collectively accumulated 7 of 16 penalties.
+The other player sent this message:</p>
+<p>"I see that you've made another move. Can you please confirm the current position of your 'P' object? Has it been moved to (1,2) yet? Also, I'd like to know what object you moved this time and where it was moved to. This will help me understand the current state of your board and plan my next move accordingly. Additionally, I'll review my board to see if I need to make any adjustments to my 'P' object's position. Please provide an update on your board's current state."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: I moved my 'A' object to (5,1). My 'P' object is still at (2,1) and has not been moved to (1,2) yet. I'll make the next move to relocate my 'P' object to (1,2) as planned.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I moved my 'A' object to (5,1). My 'P' object is still at (2,1) and has not been moved to (1,2) yet. I'll make the next move to relocate my 'P' object to (1,2) as planned.</p></p>
+    </div>
+</div><div class="game-round" data-round="9">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 9 of maximum 28.
+You have collectively accumulated 7 of 16 penalties.
+The other player sent this message:</p>
+<p>"I moved my 'A' object to (5,1). My 'P' object is still at (2,1) and has not been moved to (1,2) yet. I'll make the next move to relocate my 'P' object to (1,2) as planned."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: Thank you for the update. It's good to know that you're still planning to move your 'P' object to (1,2). Before you make that move, I'd like to move my 'P' object to (1,2) as well, since we're trying to align our objects. My 'P' object is currently at (1,4), so I'll need to move it up to (1,2). I'll make the move and then wait for your confirmation that your 'P' object has been moved to (1,2). Let's try to get our 'P' objects in sync. </p>
+<p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Thank you for the update. It's good to know that you're still planning to move your 'P' object to (1,2). Before you make that move, I'd like to move my 'P' object to (1,2) as well, since we're trying to align our objects. My 'P' object is currently at (1,4), so I'll need to move it up to (1,2). I'll make the move and then wait for your confirmation that your 'P' object has been moved to (1,2). Let's try to get our 'P' objects in sync. </p>
+<p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: parse_error" class="msg gm-gm" style="">
+        <p><p>Invalid response format: SAY: Thank you for the update. It's good to know that you're still planning to move your 'P' object to (1,2). Before you make that move, I'd like to move my 'P' object to (1,2) as well, since we're trying to align our objects. My 'P' object is currently at (1,4), so I'll need to move it up to (1,2). I'll make the move and then wait for your confirmation that your 'P' object has been moved to (1,2). Let's try to get our 'P' objects in sync. </p>
+<p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Penalty: Your message contains more than one command!</p>
+<p>Make sure that your response only contains either <code>SAY: &lt;MESSAGE&gt;</code> or <code>MOVE: &lt;OBJECT&gt;, (&lt;X&gt;, &lt;Y&gt;)</code>, and nothing else!</p>
+<p>You have collectively accumulated 8 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: Thank you for the update. It's good to know that you're still planning to move your 'P' object to (1,2). Before you make that move, I'd like to move my 'P' object to (1,2) as well, since we're trying to align our objects. My 'P' object is currently at (1,4), so I'll need to move it up to (1,2). I'll wait for your next move before making any changes on my end. Let's try to get our 'P' objects in sync.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Thank you for the update. It's good to know that you're still planning to move your 'P' object to (1,2). Before you make that move, I'd like to move my 'P' object to (1,2) as well, since we're trying to align our objects. My 'P' object is currently at (1,4), so I'll need to move it up to (1,2). I'll wait for your next move before making any changes on my end. Let's try to get our 'P' objects in sync.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 10 of maximum 28.
+You have collectively accumulated 8 of 16 penalties.
+The other player sent this message:</p>
+<p>"Thank you for the update. It's good to know that you're still planning to move your 'P' object to (1,2). Before you make that move, I'd like to move my 'P' object to (1,2) as well, since we're trying to align our objects. My 'P' object is currently at (1,4), so I'll need to move it up to (1,2). I'll wait for your next move before making any changes on my end. Let's try to get our 'P' objects in sync."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 9 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 9 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: P, (1,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: P, (1,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: valid_move" class="msg gm-gm" style="">
+        <p><p>P moved to (1, 3)</p></p>
+    </div>
+</div><div class="game-round" data-round="10">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 10 of maximum 28.
+You have collectively accumulated 9 of 16 penalties.
+The other player moved an object on their grid.</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm the current position of your 'P' object? Has it been moved to (1,2) yet? Please provide an update on your board's current state, and I'll plan my next move accordingly.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm the current position of your 'P' object? Has it been moved to (1,2) yet? Please provide an update on your board's current state, and I'll plan my next move accordingly.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Moved 'P' to (1,3) successfully. Your updated grid looks like this:</p>
+<pre><code> 1234567
+╔═══╤═╤═╗
+║S◌◌│A│◌║ 1
+╟─┬─┼─┴─╢ 2
+║P│D│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘◌│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌◌◌T│◌M║ 7
+╚════╧══╝
+</code></pre>
+<p>You are currently playing round 11 of maximum 28.
+You have collectively accumulated 9 of 16 penalties.
+The other player sent this message:</p>
+<p>"I see that you've made another move. Can you please confirm the current position of your 'P' object? Has it been moved to (1,2) yet? Please provide an update on your board's current state, and I'll plan my next move accordingly."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: I moved my 'P' object to (1,3), not (1,2). It's currently at (1,3). I'll continue to work on moving it to (1,2) as planned.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I moved my 'P' object to (1,3), not (1,2). It's currently at (1,3). I'll continue to work on moving it to (1,2) as planned.</p></p>
+    </div>
+</div><div class="game-round" data-round="11">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 11 of maximum 28.
+You have collectively accumulated 9 of 16 penalties.
+The other player sent this message:</p>
+<p>"I moved my 'P' object to (1,3), not (1,2). It's currently at (1,3). I'll continue to work on moving it to (1,2) as planned."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: Thank you for the update. It's good to know that you're still working on moving your 'P' object to (1,2). Since your 'P' object is currently at (1,3), I'll wait for your next move to bring it to (1,2). In the meantime, I'll review my board to ensure I'm ready to move my 'P' object to (1,2) as well, once your object is in position. Please proceed with moving your 'P' object to (1,2).</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Thank you for the update. It's good to know that you're still working on moving your 'P' object to (1,2). Since your 'P' object is currently at (1,3), I'll wait for your next move to bring it to (1,2). In the meantime, I'll review my board to ensure I'm ready to move my 'P' object to (1,2) as well, once your object is in position. Please proceed with moving your 'P' object to (1,2).</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 12 of maximum 28.
+You have collectively accumulated 9 of 16 penalties.
+The other player sent this message:</p>
+<p>"Thank you for the update. It's good to know that you're still working on moving your 'P' object to (1,2). Since your 'P' object is currently at (1,3), I'll wait for your next move to bring it to (1,2). In the meantime, I'll review my board to ensure I'm ready to move my 'P' object to (1,2) as well, once your object is in position. Please proceed with moving your 'P' object to (1,2)."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 10 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 10 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: D, (2,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: D, (2,3)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (2,3) is not empty, but contains '│'.</p>
+<p>You have collectively accumulated 11 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (2,3) is not empty, but contains '│'.</p>
+<p>You have collectively accumulated 11 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: D, (3,4)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: D, (3,4)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (3,4) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 12 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (3,4) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 12 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: D, (4,4)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: D, (4,4)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (4,4) is not empty, but contains '┤'.</p>
+<p>You have collectively accumulated 13 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (4,4) is not empty, but contains '┤'.</p>
+<p>You have collectively accumulated 13 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: D, (2,4)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: D, (2,4)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (2,4) is not empty, but contains '├'.</p>
+<p>You have collectively accumulated 14 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (2,4) is not empty, but contains '├'.</p>
+<p>You have collectively accumulated 14 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: D, (3,5)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: D, (3,5)</p></p>
+    </div>
+
+    <div speaker="Game Master: valid_move" class="msg gm-gm" style="">
+        <p><p>D moved to (3, 5)</p></p>
+    </div>
+</div><div class="game-round" data-round="12">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 12 of maximum 28.
+You have collectively accumulated 14 of 16 penalties.
+The other player moved an object on their grid.</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm whether your 'P' object has been successfully moved to (1,2) yet? If so, I'll proceed with moving my 'P' object to (1,2) to align our objects. Please provide an update on your board's current state.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I see that you've made another move. Can you please confirm whether your 'P' object has been successfully moved to (1,2) yet? If so, I'll proceed with moving my 'P' object to (1,2) to align our objects. Please provide an update on your board's current state.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Moved 'D' to (3,5) successfully. Your updated grid looks like this:</p>
+<pre><code> 1234567
+╔═══╤═╤═╗
+║S◌◌│A│◌║ 1
+╟─┬─┼─┴─╢ 2
+║P│◌│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘D│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌◌◌T│◌M║ 7
+╚════╧══╝
+</code></pre>
+<p>You are currently playing round 13 of maximum 28.
+You have collectively accumulated 14 of 16 penalties.
+The other player sent this message:</p>
+<p>"I see that you've made another move. Can you please confirm whether your 'P' object has been successfully moved to (1,2) yet? If so, I'll proceed with moving my 'P' object to (1,2) to align our objects. Please provide an update on your board's current state."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: My 'P' object is currently at (1,3), not (1,2). I still need to move it up to (1,2). Now that the 'D' object is out of the way, I can try to move the 'P' object again.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: My 'P' object is currently at (1,3), not (1,2). I still need to move it up to (1,2). Now that the 'D' object is out of the way, I can try to move the 'P' object again.</p></p>
+    </div>
+</div><div class="game-round" data-round="13">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 13 of maximum 28.
+You have collectively accumulated 14 of 16 penalties.
+The other player sent this message:</p>
+<p>"My 'P' object is currently at (1,3), not (1,2). I still need to move it up to (1,2). Now that the 'D' object is out of the way, I can try to move the 'P' object again."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 15 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 15 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: It seems like there's an obstacle at (1,2) on my board. I'll review my board to find a way to clear the path for my 'P' object. Can you please confirm whether you're ready to move your 'P' object to (1,2) once the path is clear on both our boards?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: It seems like there's an obstacle at (1,2) on my board. I'll review my board to find a way to clear the path for my 'P' object. Can you please confirm whether you're ready to move your 'P' object to (1,2) once the path is clear on both our boards?</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 14 of maximum 28.
+You have collectively accumulated 15 of 16 penalties.
+The other player sent this message:</p>
+<p>"It seems like there's an obstacle at (1,2) on my board. I'll review my board to find a way to clear the path for my 'P' object. Can you please confirm whether you're ready to move your 'P' object to (1,2) once the path is clear on both our boards?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>MOVE: P, (1,2)</p></p>
+    </div>
+
+    <div speaker="Game Master: invalid_move" class="msg gm-gm" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 16 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Penalty: (1,2) is not empty, but contains '─'.</p>
+<p>You have collectively accumulated 16 of 16 penalties.
+Please try again!</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: Since we've accumulated the maximum number of penalties, I think it's time to review our strategy and goal. Let's focus on finishing the game by aligning the objects as closely as possible. I'll try to move my objects to the target positions. Can we discuss the final steps to achieve our goal?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: Since we've accumulated the maximum number of penalties, I think it's time to review our strategy and goal. Let's focus on finishing the game by aligning the objects as closely as possible. I'll try to move my objects to the target positions. Can we discuss the final steps to achieve our goal?</p></p>
+    </div>
+</div><div class="game-round" data-round="14">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 14 of maximum 28.
+You have collectively accumulated 16 of 16 penalties.
+The other player sent this message:</p>
+<p>"Since we've accumulated the maximum number of penalties, I think it's time to review our strategy and goal. Let's focus on finishing the game by aligning the objects as closely as possible. I'll try to move my objects to the target positions. Can we discuss the final steps to achieve our goal?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: I agree that we should focus on finishing the game by aligning the objects as closely as possible. Given the current state of our boards and the penalties accumulated, let's aim to move our objects to the target positions as planned. Since we've reached the maximum number of penalties, our next moves are crucial. I suggest we prioritize moving the remaining objects to their target positions, starting with the 'P' object. Please proceed with moving your 'P' object to (1,2) if possible, and I'll try to adjust my board accordingly. If not, let's discuss alternative moves to get our objects as close to the target positions as possible.</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: I agree that we should focus on finishing the game by aligning the objects as closely as possible. Given the current state of our boards and the penalties accumulated, let's aim to move our objects to the target positions as planned. Since we've reached the maximum number of penalties, our next moves are crucial. I suggest we prioritize moving the remaining objects to their target positions, starting with the 'P' object. Please proceed with moving your 'P' object to (1,2) if possible, and I'll try to adjust my board accordingly. If not, let's discuss alternative moves to get our objects as close to the target positions as possible.</p></p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (GridCleaner)" class="msg gm-player p2" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 15 of maximum 28.
+You have collectively accumulated 16 of 16 penalties.
+The other player sent this message:</p>
+<p>"I agree that we should focus on finishing the game by aligning the objects as closely as possible. Given the current state of our boards and the penalties accumulated, let's aim to move our objects to the target positions as planned. Since we've reached the maximum number of penalties, our next moves are crucial. I suggest we prioritize moving the remaining objects to their target positions, starting with the 'P' object. Please proceed with moving your 'P' object to (1,2) if possible, and I'll try to adjust my board accordingly. If not, let's discuss alternative moves to get our objects as close to the target positions as possible."</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 2 (GridCleaner) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p><p>SAY: finished?</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: finished?</p></p>
+    </div>
+</div><div class="game-round" data-round="15">
+    <div speaker="GM (Game Master) to Player 1 (GridCleaner)" class="msg gm-player p1" style="">
+        <p><p>Your message has been relayed to the other player.</p>
+<p>You are currently playing round 15 of maximum 28.
+You have collectively accumulated 16 of 16 penalties.
+The other player sent this message:</p>
+<p>"finished?"</p>
+<p>What is your next command?</p></p>
+    </div>
+
+    <div speaker="Player 1 (GridCleaner) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p><p>SAY: finished!</p></p>
+    </div>
+
+    <div speaker="Game Master: player_response" class="msg gm-gm" style="">
+        <p><p>SAY: finished!</p></p>
+    </div>
+
+    <div speaker="Game Master: success" class="msg gm-gm" style="">
+        <p><p>true</p></p>
+    </div>
+
+    <div speaker="Game Master: initial_state" class="msg gm-gm" style="">
+        <p><p>Initial states:</p>
+<pre><code>Player 1:
+ 1234567
+╔═══╤═╤═╗
+║◌S◌│◌│A║ 1
+╟─┬─┼─┴─╢ 2
+║◌│◌│◌◌◌║ 3
+║P├─┤D┌─╢ 4
+╟─┘◌│◌│M║ 5
+║◌◌◌└┬┴─╢ 6
+║◌OT◌│◌◌║ 7
+╚════╧══╝
+
+
+Player 2:
+ 1234567
+╔═══╤═╤═╗
+║P◌A│◌│◌║ 1
+╟─┬─┼─┴─╢ 2
+║◌│D│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘◌│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌S◌T│◌M║ 7
+╚════╧══╝
+
+</code></pre></p>
+    </div>
+
+    <div speaker="Game Master: end_state" class="msg gm-gm" style="">
+        <p><p>End states:</p>
+<pre><code>Player 1:
+ 1234567
+╔═══╤═╤═╗
+║◌S◌│◌│A║ 1
+╟─┬─┼─┴─╢ 2
+║◌│◌│◌◌◌║ 3
+║P├─┤D┌─╢ 4
+╟─┘◌│◌│M║ 5
+║◌◌◌└┬┴─╢ 6
+║◌OT◌│◌◌║ 7
+╚════╧══╝
+
+
+Player 2:
+ 1234567
+╔═══╤═╤═╗
+║S◌◌│A│◌║ 1
+╟─┬─┼─┴─╢ 2
+║P│◌│◌◌◌║ 3
+║◌├─┤◌┌─╢ 4
+╟─┘D│◌│O║ 5
+║◌◌◌└┬┴─╢ 6
+║◌◌◌T│◌M║ 7
+╚════╧══╝
+
+</code></pre></p>
+    </div>
+
+    <div speaker="Game Master: game_finished" class="msg gm-gm" style="">
+        <p><ul>
+<li>success: True</li>
+<li>lose: False</li>
+<li>aborted: False</li>
+</ul>
+<hr />
+<ul>
+<li>Shifts: 4.00</li>
+<li>Max Shifts: 12.00</li>
+<li>Min Shifts: 6.00</li>
+<li>End Distance Sum: 14.62</li>
+<li>Init Distance Sum: 23.62</li>
+<li>Expected Distance Sum: 29.33</li>
+<li>Penalties: 16.00</li>
+<li>Max Penalties: 16.00</li>
+<li>Rounds: 15.00</li>
+<li>Max Rounds: 28.00</li>
+<li>Object Count: 7.00</li>
+</ul></p>
+    </div>
+</div>
+</div>
+
+</body>
+</html>
