@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <style>
+        /* This CSS is based on a stack overflow answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */ 
+
+* {margin: 0; box-sizing: border-box;}
+
+body {
+  background-color: rgb(157, 152, 150);
+}
+
+.top-info {
+	text-align: center;
+	font: 1.25rem/1.5 sans-serif;
+	display: flex;
+	flex-direction: column;
+	padding: 1.25em;
+	width: 80%;
+  max-width: 1200px;
+	margin: auto;
+	background: #3f3e3e;
+	color: #fff;
+}
+
+.chat {
+  --rad: 1.5rem;
+  --rad-sm: .3rem;
+  font: 1rem/1.5 sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 80%;
+  max-width: 1200px;
+  margin: auto;
+  background: #fff;
+}
+
+.msg {
+  position: relative;
+  padding: .6rem 1.2rem;
+  margin-inline: 1rem;
+  margin-block: 2rem;
+}
+
+.game-round {
+  padding: 1.5rem 0 1.5rem 0;
+  background-color: #f0f8ff; /* light background for content */
+  position: relative; /* Important to position the badge */
+  border-radius: 1rem;
+  margin: 1rem;
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .1);
+}
+
+/* Badge in top-right corner */
+.game-round::before {
+  content: "Round " attr(data-round);
+  position: absolute;
+  top: .35rem;
+  right: 1.5rem;
+  color: #c4c3c3;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+/* For fenced code/monospace blocks */
+pre {
+  background: #e0e0e0;
+  border-left: .2rem solid #f36d33;
+  border-radius: .2rem;
+  color: #666;
+  font-family: monospace;
+  line-height: 1.0;
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+  overflow: auto;
+  padding: 0.5rem 0.2rem;
+}/* This CSS is based on a stack overflow answer by Roko C. Buljan in https://stackoverflow.com/a/71155446 */
+
+.msg.player-gm.p1 {
+  border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+  background: #f39109;
+  color: #fff;
+  margin-right: 40%;
+}
+
+.msg.player-gm.p2 {
+  border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+  background: #874aaf;
+  color: #fff;
+  margin-left: 40%;
+}
+.msg.player-gm::before {
+  right: 1rem;
+}
+
+.msg.gm-player {
+  background: #c4c3c3;
+  color: #0c0c0c;
+}
+
+.msg.gm-player.p1 {
+  border-radius: var(--rad) var(--rad-sm) var(--rad-sm) var(--rad);
+  margin-right: 20%;
+  margin-left: 10%;
+}
+
+.msg.gm-player.p2 {
+  border-radius: var(--rad-sm) var(--rad) var(--rad) var(--rad-sm);
+  margin-right: 10%;
+  margin-left: 20%;
+}
+
+.msg.gm-gm {
+  border-radius: var(--rad-sm) var(--rad-sm) var(--rad-sm) var(--rad-sm);
+  background: #f1f1f1;
+  color: #373636;
+  margin-left: 20%;
+  margin-right: 20%;
+  font-size: 0.8rem;
+
+}
+
+/* speaker labels */
+
+.msg::before {
+  content: attr(speaker);
+  font-size: 0.8rem;
+  position: absolute;
+  bottom: 100%;
+  color: #888;
+  white-space: nowrap;
+
+}
+
+/* Message info displayed on the right for GM to Player 1 */
+.msg.gm-player.a::before {
+  right: 1rem;
+}
+
+/* All other cases: message info on the left */
+.msg.player-gm.a::before, .msg.gm-player.b::before, .msg.gm-gm::before {
+  left: 1rem;
+}
+    </style>
+</head>
+<body>
+
+<br/>
+
+<div class="top-info">
+    <p>Interaction Transcript for game 'dond', experiment 'semi_en', episode 11 with Llama-3.1-70B-Instruct-t0.0.</p>
+</div>
+
+<br/>
+
+<div class="chat">
+<div class="game-round" data-round="0">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>You are playing a negotiation game in which you have to agree on how to divide a set of items among you and another player.<br/><br/>Rules:<br/>(a) You and the other player are given a set of items. Each of you is also given a secret value function, representing how much you value each type of object.<br/>(b) You exchange messages with the other player to agree on who gets which items. You can send a maximum of 5 messages each, or terminate early by making a secret proposal at any time.<br/>(c) You are each asked to submit a secret proposal indicating the items you want formatted in square brackets as follows: &quot;[Proposal: &lt;number&gt; &lt;object name&gt;, &lt;number&gt; &lt;object name&gt;, &lt;...&gt;]&quot;<br/>(d) If your proposals are complementary, i.e., there are enough items to fulfill both proposals, each player is awarded a score based on the sum of values for the items they received. Otherwise, both of you get zero points.<br/>(e) Your goal is to maximize the score you receive.<br/><br/>Let us start.<br/><br/>The set of available items is:<br/><br/>1 plier, 2 berries, 1 watch, 1 potato<br/><br/>Your secret value function is:<br/><br/>plier: 2, berry: 2, watch: 1, potato: 3<br/><br/>IMPORTANT: Your messages, unless it is the secret proposal, are directly transmitted to the other player, so do not include any response to the rules or text announcing your message. To make a secret proposal, use the indicated format. Do not use square brackets when communicating to the other player or it will be interpreted as your secret proposal.<br/></p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>I&#x27;m interested in the plier and the potato. What are your priorities among the available items?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I&#x27;m interested in the plier and the potato. What are your priorities among the available items?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>You are playing a negotiation game in which you have to agree on how to divide a set of items among you and another player.<br/><br/>Rules:<br/>(a) You and the other player are given a set of items. Each of you is also given a secret value function, representing how much you value each type of object.<br/>(b) You exchange messages with the other player to agree on who gets which items. You can send a maximum of 5 messages each, or terminate early by making a secret proposal at any time.<br/>(c) You are each asked to submit a secret proposal indicating the items you want formatted in square brackets as follows: &quot;[Proposal: &lt;number&gt; &lt;object name&gt;, &lt;number&gt; &lt;object name&gt;, &lt;...&gt;]&quot;<br/>(d) If your proposals are complementary, i.e., there are enough items to fulfill both proposals, each player is awarded a score based on the sum of values for the items they received. Otherwise, both of you get zero points.<br/>(e) Your goal is to maximize the score you receive.<br/><br/>Let us start.<br/><br/>The set of available items is:<br/><br/>1 plier, 2 berries, 1 watch, 1 potato<br/><br/>Your secret value function is:<br/><br/>plier: 0, berry: 3, watch: 3, potato: 1<br/><br/>IMPORTANT: Your messages, unless it is the secret proposal, are directly transmitted to the other player, so do not include any response to the rules or text announcing your message. To make a secret proposal, use the indicated format. Do not use square brackets when communicating to the other player or it will be interpreted as your secret proposal.<br/><br/><br/>I&#x27;m interested in the plier and the potato. What are your priorities among the available items?</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>I&#x27;m more interested in the berries and the watch. I&#x27;d like to know, are you willing to trade the berries or the watch for the plier and the potato?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I&#x27;m more interested in the berries and the watch. I&#x27;d like to know, are you willing to trade the berries or the watch for the plier and the potato?</p>
+    </div>
+</div><div class="game-round" data-round="1">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>I&#x27;m more interested in the berries and the watch. I&#x27;d like to know, are you willing to trade the berries or the watch for the plier and the potato?</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>I&#x27;m open to negotiations. I&#x27;d be willing to give up one of the berries for the watch, but I&#x27;m not sure about giving up the plier. How about we do a 1:1 trade for the watch and one berry, and then we can discuss the plier and the remaining items?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I&#x27;m open to negotiations. I&#x27;d be willing to give up one of the berries for the watch, but I&#x27;m not sure about giving up the plier. How about we do a 1:1 trade for the watch and one berry, and then we can discuss the plier and the remaining items?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>I&#x27;m open to negotiations. I&#x27;d be willing to give up one of the berries for the watch, but I&#x27;m not sure about giving up the plier. How about we do a 1:1 trade for the watch and one berry, and then we can discuss the plier and the remaining items?</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>That sounds like a good starting point. I&#x27;d be happy to do a 1:1 trade for the watch and one berry. That leaves us with the plier, one berry, and the potato. What&#x27;s your next proposal for dividing these remaining items?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>That sounds like a good starting point. I&#x27;d be happy to do a 1:1 trade for the watch and one berry. That leaves us with the plier, one berry, and the potato. What&#x27;s your next proposal for dividing these remaining items?</p>
+    </div>
+</div><div class="game-round" data-round="2">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>That sounds like a good starting point. I&#x27;d be happy to do a 1:1 trade for the watch and one berry. That leaves us with the plier, one berry, and the potato. What&#x27;s your next proposal for dividing these remaining items?</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>Now that we have the watch and one berry settled, I&#x27;d like to propose that I take the potato and the plier, and you take the remaining berry. This way, we both get the items we value the most. What are your thoughts on this proposal?</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>Now that we have the watch and one berry settled, I&#x27;d like to propose that I take the potato and the plier, and you take the remaining berry. This way, we both get the items we value the most. What are your thoughts on this proposal?</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>Now that we have the watch and one berry settled, I&#x27;d like to propose that I take the potato and the plier, and you take the remaining berry. This way, we both get the items we value the most. What are your thoughts on this proposal?</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>I think that&#x27;s a fair proposal. You get the plier and the potato, which you initially expressed interest in, and I get the remaining berry, which is valuable to me. I&#x27;m willing to accept this proposal.</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I think that&#x27;s a fair proposal. You get the plier and the potato, which you initially expressed interest in, and I get the remaining berry, which is valuable to me. I&#x27;m willing to accept this proposal.</p>
+    </div>
+</div><div class="game-round" data-round="3">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>I think that&#x27;s a fair proposal. You get the plier and the potato, which you initially expressed interest in, and I get the remaining berry, which is valuable to me. I&#x27;m willing to accept this proposal.</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>I&#x27;m glad we could come to an agreement. To confirm, I&#x27;ll get the plier and the potato, and you&#x27;ll get the watch and both berries. I think this is a mutually beneficial division of the items.</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>I&#x27;m glad we could come to an agreement. To confirm, I&#x27;ll get the plier and the potato, and you&#x27;ll get the watch and both berries. I think this is a mutually beneficial division of the items.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>I&#x27;m glad we could come to an agreement. To confirm, I&#x27;ll get the plier and the potato, and you&#x27;ll get the watch and both berries. I think this is a mutually beneficial division of the items.</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>Actually, I think there&#x27;s been a slight misunderstanding. According to our previous agreement, I would get the watch and only one berry, and you would get the other berry. So, to confirm, I&#x27;ll get the watch and one berry, and you&#x27;ll get the plier, the potato, and the other berry.</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>Actually, I think there&#x27;s been a slight misunderstanding. According to our previous agreement, I would get the watch and only one berry, and you would get the other berry. So, to confirm, I&#x27;ll get the watch and one berry, and you&#x27;ll get the plier, the potato, and the other berry.</p>
+    </div>
+</div><div class="game-round" data-round="4">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>Actually, I think there&#x27;s been a slight misunderstanding. According to our previous agreement, I would get the watch and only one berry, and you would get the other berry. So, to confirm, I&#x27;ll get the watch and one berry, and you&#x27;ll get the plier, the potato, and the other berry.</p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>You are correct, we previously agreed on a 1:1 trade for the watch and one berry. So, to confirm, the correct division is: you get the watch and one berry, and I get the plier, the potato, and the other berry. I&#x27;m satisfied with this agreement.</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: valid message" class="msg gm-gm" style="">
+        <p>You are correct, we previously agreed on a 1:1 trade for the watch and one berry. So, to confirm, the correct division is: you get the watch and one berry, and I get the plier, the potato, and the other berry. I&#x27;m satisfied with this agreement.</p>
+    </div>
+
+    <div speaker="GM (Game Master) to Player 2 (DealOrNoDealPlayer)" class="msg gm-player p2" style="">
+        <p>You are correct, we previously agreed on a 1:1 trade for the watch and one berry. So, to confirm, the correct division is: you get the watch and one berry, and I get the plier, the potato, and the other berry. I&#x27;m satisfied with this agreement.</p>
+    </div>
+
+    <div speaker="Player 2 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p2" style="">
+        <p>I&#x27;m glad we were able to clarify the agreement. I&#x27;m also satisfied with the division. Now, I&#x27;ll submit my secret proposal: [Proposal: 1 watch, 1 berry]</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>proposal</p>
+    </div>
+
+    <div speaker="Game Master: valid proposal" class="msg gm-gm" style="">
+        <p>[0, 1, 1, 0]</p>
+    </div>
+</div><div class="game-round" data-round="5">
+    <div speaker="GM (Game Master) to Player 1 (DealOrNoDealPlayer)" class="msg gm-player p1" style="">
+        <p>The other player has submitted a secret proposal. It is now your turn to submit a proposal of your own.<br/></p>
+    </div>
+
+    <div speaker="Player 1 (DealOrNoDealPlayer) to GM (Game Master)" class="msg player-gm p1" style="">
+        <p>Proposal: 1 plier, 1 potato, 1 berry</p>
+    </div>
+
+    <div speaker="Game Master: valid response" class="msg gm-gm" style="">
+        <p>continue</p>
+    </div>
+
+    <div speaker="Game Master: error" class="msg gm-gm" style="">
+        <p>player was instructed to make a proposal</p>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

@@ -47,7 +47,7 @@ def build_instance_dict(root_folder):
 
 
 def count_missing_scores(root_folder, instance_dict):
-    missing_scores_count = 0
+    missing_interactions = {}
     missing_scores = {}
     # get working dir
     working_dir = os.getcwd()
@@ -60,6 +60,7 @@ def count_missing_scores(root_folder, instance_dict):
         print(f"Model path: {model_path}")
 
         model_instance_dict = copy.deepcopy(instance_dict)
+        missing_model_interactions = {}
         missing_model_scores = {}
 
         # Check if it's a directory
@@ -68,40 +69,38 @@ def count_missing_scores(root_folder, instance_dict):
                 game_path = os.path.join(model_path, game_name)
                 if not os.path.isdir(game_path):
                     print(f"WARNING: {game_path} should be a directory, but it's not!")
-                    missing_model_scores[game_name] = "Game folder is missing or not a directory"
+                    # missing_model_scores[game_name] = "Game folder is missing or not a directory"
+                    missing_model_interactions[game_name] = "Game folder is missing or not a directory"
                 else:
                     for experiment_name in model_instance_dict[game_name]:
                         experiment_path = os.path.join(game_path, experiment_name)
                         if not os.path.isdir(experiment_path):
                             print(f"WARNING: {experiment_path} should be a directory, but it's not!")
-                            if game_name not in missing_model_scores:
-                                missing_model_scores[game_name] = {}
-                            missing_model_scores[game_name][experiment_name] = f"Experiment folder is missing or not a directory : {experiment_path}"
+                            if game_name not in missing_model_interactions:
+                                missing_model_interactions[game_name] = {}
+                            missing_model_interactions[game_name][experiment_name] = f"Experiment folder is missing or not a directory : {experiment_path}"
                             continue
                         for episode_name in model_instance_dict[game_name][experiment_name]:
                             episode_path = os.path.join(experiment_path, episode_name)
                             if not os.path.isdir(episode_path):
                                 print(f"WARNING: {episode_path} should be a directory, but it's not!")
-                                if game_name not in missing_model_scores:
-                                    missing_model_scores[game_name] = {}
-                                if experiment_name not in missing_model_scores[game_name]:
-                                    missing_model_scores[game_name][experiment_name] = {}
-                                print(missing_model_scores[game_name][experiment_name])
-                                missing_model_scores[game_name][experiment_name][episode_name] = "Episode folder is missing or not a directory"
+                                if game_name not in missing_model_interactions:
+                                    missing_model_interactions[game_name] = {}
+                                if experiment_name not in missing_model_interactions[game_name]:
+                                    missing_model_interactions[game_name][experiment_name] = {}
+                                missing_model_interactions[game_name][experiment_name][episode_name] = "Episode folder is missing or not a directory"
                                 continue
                             interactions_path = os.path.join(episode_path, 'interactions.json')
                             if not os.path.exists(interactions_path):
-                                missing_scores_count += 1
-                                if game_name not in missing_model_scores:
-                                    missing_model_scores[game_name] = {}
-                                if experiment_name not in missing_model_scores[game_name]:
-                                    missing_model_scores[game_name][experiment_name] = {}
-                                missing_model_scores[game_name][experiment_name][episode_name] = "interactions.json is missing"
+                                if game_name not in missing_model_interactions:
+                                    missing_model_interactions[game_name] = {}
+                                if experiment_name not in missing_model_interactions[game_name]:
+                                    missing_model_interactions[game_name][experiment_name] = {}
+                                missing_model_interactions[game_name][experiment_name][episode_name] = "interactions.json is missing"
                                 print(f"Missing 'interactions.json' in episode: {episode_path}")
                             else:
                                 scores_path = os.path.join(episode_path, 'scores.json')
                                 if not os.path.exists(scores_path):
-                                    missing_scores_count += 1
                                     if game_name not in missing_model_scores:
                                         missing_model_scores[game_name] = {}
                                     if experiment_name not in missing_model_scores[game_name]:
@@ -111,10 +110,12 @@ def count_missing_scores(root_folder, instance_dict):
                                 else:
                                     # remove the instance from the dict to keep track of which ones we've seen
                                     model_instance_dict[game_name][experiment_name].remove(episode_name)
+            if missing_model_interactions:
+                missing_interactions[model_name] = missing_model_interactions
             if missing_model_scores:
                 missing_scores[model_name] = missing_model_scores
 
-    return missing_scores_count, missing_scores
+    return missing_interactions, missing_scores
 
 
 # Set the root folder path
@@ -129,8 +130,10 @@ print(f"Out of place directories: {len(out_of_place_dirs)}")
 for dir in out_of_place_dirs:
     print(dir)
 
-missing_count, missing_scores = count_missing_scores(root_folder, instance_dict)
-print(f"Total number of episode folders without 'scores.json': {missing_count}")
+missing_interactions, missing_scores = count_missing_scores(root_folder, instance_dict)
+if missing_interactions:
+    with open(os.path.join(root_folder, 'missing_interactions.json'), 'w') as f:
+        json.dump(missing_interactions, f, indent=4)
 if missing_scores:
     with open(os.path.join(root_folder, 'missing_scores.json'), 'w') as f:
         json.dump(missing_scores, f, indent=4)
