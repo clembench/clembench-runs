@@ -131,9 +131,9 @@ for dir in out_of_place_dirs:
     print(dir)
 
 missing_interactions, missing_scores = count_missing_scores(root_folder, instance_dict)
-if missing_interactions:
-    with open(os.path.join(root_folder, 'missing_interactions.json'), 'w') as f:
-        json.dump(missing_interactions, f, indent=4)
-if missing_scores:
-    with open(os.path.join(root_folder, 'missing_scores.json'), 'w') as f:
-        json.dump(missing_scores, f, indent=4)
+
+with open(os.path.join(root_folder, 'missing_interactions.json'), 'w') as f:
+    json.dump(missing_interactions, f, indent=4)
+
+with open(os.path.join(root_folder, 'missing_scores.json'), 'w') as f:
+    json.dump(missing_scores, f, indent=4)
